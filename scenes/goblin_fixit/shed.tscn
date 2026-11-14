@@ -1,0 +1,44 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/goblin_fixit/building.gd" id="1_g58xh"]
+[ext_resource type="TileSet" path="res://assets/tiles/goblin_fixit_tiles.tres" id="2_55sm1"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/work_area.gd" id="3_eic36"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/saw_step.tscn" id="4_r5d3q"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/place_step.tscn" id="5_qpc81"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/nail_step.tscn" id="6_kjino"]
+
+[node name="Shed" type="Node2D" unique_id=443075089]
+script = ExtResource("1_g58xh")
+
+[node name="Structure" type="TileMapLayer" parent="." unique_id=277280111]
+tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAABAAAAAAABAAAAAAACAAAAAAABAAAAAAADAAAAAAABAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAABAAEAAAABAAAAAAACAAEAAAABAAAAAAADAAEAAAABAAAAAAAEAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAABAAIAAAAAAAAAAAACAAIAAAAAAAAAAAADAAIAAAAAAAAAAAAEAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAABAAMAAAAAAAAAAAACAAMAAAABAAAAAAADAAMAAAABAAAAAAAEAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAABAAQAAAABAAAAAAACAAQAAAAAAAAAAAADAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="Areas" type="Node2D" parent="." unique_id=2034020471]
+
+[node name="WorkArea1" type="Node2D" parent="Areas" unique_id=1690207309]
+script = ExtResource("3_eic36")
+display_name = "Work area 1"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea1" unique_id=656456650]
+tile_map_data = PackedByteArray("AAABAAAAAAACAAAAAAACAAAAAAACAAAAAAADAAAAAAACAAAAAAABAAEAAAACAAAAAAACAAEAAAACAAAAAAADAAEAAAACAAAAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="WorkArea2" type="Node2D" parent="Areas" unique_id=1847080994]
+script = ExtResource("3_eic36")
+display_name = "Work area 2"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea2" unique_id=807396714]
+tile_map_data = PackedByteArray("AAABAAQAAAACAAAAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="WorkArea3" type="Node2D" parent="Areas" unique_id=1827484696]
+script = ExtResource("3_eic36")
+display_name = "Work area 3"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea3" unique_id=742104027]
+tile_map_data = PackedByteArray("AAACAAMAAAACAAAAAAADAAMAAAACAAAAAAA=")
+tile_set = ExtResource("2_55sm1")

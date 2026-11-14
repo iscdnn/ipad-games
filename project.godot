@@ -10,29 +10,30 @@ config_version=5
 
 [application]
 
-config/name="WebFamework"
-run/main_scene="res://scenes/menu.tscn"
+config/name="iPad Games"
+run/main_scene="res://scenes/goblin_fixit/site.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Save="*res://scripts/save.gd"
+Sfx="*res://scripts/core/sfx.gd"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1180
+window/size/viewport_height=820
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/handheld/orientation=0
 
-[physics]
+[input_devices]
 
-3d/physics_engine="Jolt Physics"
+pointing/emulate_mouse_from_touch=true
 
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.56, 0.8, 0.95, 1)
