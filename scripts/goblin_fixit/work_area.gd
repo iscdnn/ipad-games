@@ -180,20 +180,28 @@ func _inset_loop(pts: Array[Vector2i], ts: Vector2) -> PackedVector2Array:
 func _draw() -> void:
 	if not highlighted:
 		return
-	var phase := _t * ant_speed
+	var period_slots := 2 * ant_colors.size() # ant + gap per colour
 	for loop in _loops:
 		var n := loop.size()
+		# Stretch the ant length slightly so the loop holds a whole number of
+		# ant/gap patterns; otherwise there's a visible seam where it wraps.
+		var perimeter := 0.0
+		for i in n:
+			perimeter += loop[i].distance_to(loop[(i + 1) % n])
+		var periods := maxi(roundi(perimeter / (ant_length * period_slots)), 1)
+		var slot_len := perimeter / float(periods * period_slots)
+		var phase := fmod(_t * ant_speed, perimeter)
 		var walked := 0.0
 		for i in n:
 			var a := loop[i]
 			var b := loop[(i + 1) % n]
 			var seg := a.distance_to(b)
-			# dashes are numbered along the loop; shifting by phase marches them clockwise
+			# slots are numbered along the loop; shifting by phase marches them clockwise
 			var s0 := walked - phase
-			var idx := floori(s0 / ant_length)
+			var idx := floori(s0 / slot_len)
 			var u := 0.0
 			while u < seg:
-				var v := minf((idx + 1) * ant_length - s0, seg)
+				var v := minf((idx + 1) * slot_len - s0, seg)
 				if v > u:
 					# even slots are ants, odd slots are gaps; ants alternate colours
 					if posmod(idx, 2) == 0:
