@@ -1,22 +1,20 @@
 extends Node2D
 ## Goblin Fix-It: the building site. Tap a highlighted part of the building,
-## the goblin walks over, the fix-it window pops up, the part gets repaired.
+## the fix-it window pops up, the part gets repaired.
 ##
+## Top-down view: flat green background, building centred on screen.
 ## World is authored in art pixels (16px tiles, scale 1). The Camera2D zoom
 ## sets how big art pixels appear; the pop-up window uses the same zoom for
 ## its art so both match.
 
 ## Screen pixels per art pixel, for the world camera and the pop-up art.
 @export var pixel_zoom := 2.0
-## Rows of ground tiles visible below the building.
-@export var ground_rows_visible := 2
-@export var ground_tile := Vector2i(0, 0)
-@export var dirt_tile := Vector2i(1, 0)
+## Goblin distance from the left screen edge, in art pixels.
+@export var goblin_margin := 24.0
 
 var _busy := false
 
 @onready var camera: Camera2D = $Camera
-@onready var ground: TileMapLayer = $Ground
 @onready var building: Building = $Building
 @onready var goblin: Goblin = $Goblin
 @onready var window: InteractionWindow = $InteractionWindow
@@ -30,27 +28,19 @@ func _ready() -> void:
 	again_button.pressed.connect(_on_again)
 	done_label.visible = false
 	again_button.visible = false
-	# ground surface is world y = 0, building centred on x = 0
+	# building centred on world origin; camera looks at the origin
 	var bs := building.size_px()
-	building.position = Vector2(roundf(-bs.x / 2.0), -bs.y)
-	goblin.position = Vector2(building.position.x - 24.0, 0.0)
+	building.position = (-bs / 2.0).round()
 	_layout()
 	building.refresh_highlights()
 
 
-## Camera keeps the ground at the bottom of the screen; extra screen space
-## (other iPad shapes, `expand` stretch) shows more sky / more ground sideways.
 func _layout() -> void:
 	camera.zoom = Vector2.ONE * pixel_zoom
+	camera.position = Vector2.ZERO
 	var view := get_viewport_rect().size / pixel_zoom
-	var tile := Vector2(ground.tile_set.tile_size)
-	camera.position = Vector2(0.0, ground_rows_visible * tile.y - view.y / 2.0)
-	ground.clear()
-	var half_cols := ceili(view.x / 2.0 / tile.x) + 1
-	for x in range(-half_cols, half_cols):
-		ground.set_cell(Vector2i(x, 0), 0, ground_tile)
-		for y in range(1, ground_rows_visible + 1):
-			ground.set_cell(Vector2i(x, y), 0, dirt_tile)
+	# goblin stands at the left edge for now (no walking yet)
+	goblin.position = Vector2(-view.x / 2.0 + goblin_margin, 0.0).round()
 	var vp := get_viewport_rect().size
 	confetti.position = Vector2(vp.x / 2.0, -20.0)
 	confetti.emission_rect_extents = Vector2(vp.x / 2.0, 10.0)
@@ -70,12 +60,6 @@ func _fix(area: WorkArea) -> void:
 	_busy = true
 	Sfx.play(&"tap")
 	building.clear_highlights()
-	var r := area.global_rect()
-	var b_left := building.position.x
-	var b_right := b_left + building.size_px().x
-	var target := clampf(r.get_center().x, b_left - 16.0, b_right + 16.0)
-	await goblin.walk_to(target)
-	goblin.face(r.get_center().x)
 	await window.run(area, pixel_zoom)
 	area.complete()
 	Sfx.play(&"area_done")

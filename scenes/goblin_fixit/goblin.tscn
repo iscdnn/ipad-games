@@ -3,11 +3,10 @@
 [ext_resource type="Script" path="res://scripts/goblin_fixit/goblin.gd" id="1_q7rdf"]
 [ext_resource type="Texture2D" path="res://assets/sprites/goblin.png" id="2_mdpff"]
 
-[node name="Goblin" type="Node2D" unique_id=1330453311]
+[node name="Goblin" type="Node2D" unique_id=1140604946]
 script = ExtResource("1_q7rdf")
 
-[node name="Sprite" type="Sprite2D" parent="." unique_id=1007102895]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=515324280]
 texture = ExtResource("2_mdpff")
 centered = false
-offset = Vector2(-8, -24)
-hframes = 4
+offset = Vector2(-8, -16)

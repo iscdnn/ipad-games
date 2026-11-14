@@ -1,7 +1,8 @@
 class_name Goblin
 extends Node2D
 ## The goblin builder. Sprite sheet: 4 frames [idle0, idle1, walk0, walk1],
-## drawn facing right, feet at the bottom.
+## drawn facing right, feet at the bottom. A 1-frame sheet skips animation.
+## walk_to() is unused for now (goblin stands at the screen edge).
 
 @export var speed := 120.0
 
@@ -37,6 +38,8 @@ func cheer(times := 1) -> void:
 
 
 func _process(delta: float) -> void:
+	if sprite.hframes < 4:
+		return # single-frame placeholder, no animation
 	_anim_t += delta
 	var period := 0.12 if _walking else 0.5
 	if _anim_t >= period:

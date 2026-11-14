@@ -28,9 +28,10 @@ renderer. Web export into `/docs`, hosted on GitHub Pages, played on iPad
 - `docs/` - web export output (has `.gdignore` so the editor skips it).
 
 ## Goblin Fix-It (first minigame)
-Main scene `scenes/goblin_fixit/site.tscn`. Tap glowing part of building, goblin
-walks over, pop-up window runs that part's interaction chain, part's tiles swap
-to repaired.
+Main scene `scenes/goblin_fixit/site.tscn`. Top-down 2D view (not isometric),
+flat green background, camera centred on the building. Tap a highlighted work
+area, pop-up window runs its interaction chain, its tiles swap to repaired.
+Goblin stands static at the left screen edge for now (walking later).
 - `shed.tscn` (Building): `Structure` TileMapLayer = broken building;
   `Areas/<WorkArea>` each with `Fixed` TileMapLayer = repaired tiles drawn over
   it once done. Painted Fixed cells = the area (any contiguous shape).
@@ -39,7 +40,10 @@ to repaired.
 - Highlight: yellow/black marching ants, clockwise, traced around the cells.
 - Taps: area's cells grown by `tap_padding` (8 art px); overlap goes to the
   nearest area; locked areas still block.
-- Shed order: Floor -> Left/Right wall -> Roof. Each: saw -> place -> nail.
+- First building `shed.tscn`: 5x5, 3 work areas (3x2 + two 1x1), all open
+  from the start, each saw -> place -> nail.
+- Placeholders: hatched flat-colour squares (tileset: grey structure, brown
+  todo, green fixed, blue spare).
 - Steps (`scripts/goblin_fixit/steps/`): `FixStep` base; `saw_step` (drag back
   and forth), `place_step` (drag boards into outlines), `nail_step` (drag nail
   from box, hold to charge hammer, release to swing).
