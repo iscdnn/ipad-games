@@ -1,0 +1,75 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/goblin_fixit/site.gd" id="1_sl7fr"]
+[ext_resource type="TileSet" path="res://assets/tiles/goblin_fixit_tiles.tres" id="2_uji8x"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/shed.tscn" id="3_vt5aa"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/goblin.tscn" id="4_yl88g"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/interaction_window.gd" id="5_80axm"]
+
+[sub_resource type="Gradient" id="Gradient_p1wcq"]
+offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
+colors = PackedColorArray(1, 0.3, 0.3, 1, 1, 0.85, 0.2, 1, 0.3, 0.85, 0.4, 1, 0.3, 0.6, 1, 1, 0.8, 0.4, 1, 1)
+
+[node name="GoblinFixIt" type="Node2D" unique_id=2060608682]
+script = ExtResource("1_sl7fr")
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=461269727]
+scale = Vector2(3, 3)
+tile_set = ExtResource("2_uji8x")
+
+[node name="Building" parent="." unique_id=1535640922 instance=ExtResource("3_vt5aa")]
+
+[node name="Goblin" parent="." unique_id=515932847 instance=ExtResource("4_yl88g")]
+
+[node name="InteractionWindow" type="CanvasLayer" parent="." unique_id=581523987]
+script = ExtResource("5_80axm")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=2053592701]
+layer = 5
+
+[node name="DoneLabel" type="Label" parent="UI" unique_id=1953564346]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 30.0
+offset_right = 400.0
+offset_bottom = 180.0
+theme_override_font_sizes/font_size = 110
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.4, 0.2, 0.05, 1)
+theme_override_constants/outline_size = 24
+text = "All fixed!"
+horizontal_alignment = 1
+
+[node name="AgainButton" type="Button" parent="UI" unique_id=483946610]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -30.0
+offset_right = 220.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 52
+text = "  Build again!  "
+
+[node name="Confetti" type="CPUParticles2D" parent="UI" unique_id=156429918]
+emitting = false
+amount = 160
+lifetime = 3.0
+one_shot = true
+explosiveness = 0.3
+emission_shape = 3
+emission_rect_extents = Vector2(1, 1)
+direction = Vector2(0, 1)
+spread = 30.0
+gravity = Vector2(0, 200)
+initial_velocity_min = 100.0
+initial_velocity_max = 250.0
+angular_velocity_min = -300.0
+angular_velocity_max = 300.0
+scale_amount_min = 6.0
+scale_amount_max = 12.0
+color_initial_ramp = SubResource("Gradient_p1wcq")

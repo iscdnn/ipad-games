@@ -1,0 +1,57 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scripts/goblin_fixit/building.gd" id="1_g58xh"]
+[ext_resource type="TileSet" path="res://assets/tiles/goblin_fixit_tiles.tres" id="2_55sm1"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/work_area.gd" id="3_eic36"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/saw_step.tscn" id="4_r5d3q"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/place_step.tscn" id="5_qpc81"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/nail_step.tscn" id="6_kjino"]
+
+[node name="Shed" type="Node2D" unique_id=1535640922]
+scale = Vector2(3, 3)
+script = ExtResource("1_g58xh")
+
+[node name="Structure" type="TileMapLayer" parent="." unique_id=879125148]
+tile_map_data = PackedByteArray("AAABAAAAAAABAAMAAAACAAAAAAAAAAMAAAADAAAAAAAAAAMAAAAEAAAAAAAAAAMAAAAFAAAAAAACAAMAAAAAAAEAAAABAAMAAAABAAEAAAAAAAMAAAACAAEAAAAAAAMAAAADAAEAAAAAAAMAAAAEAAEAAAAAAAMAAAAFAAEAAAAAAAMAAAAGAAEAAAACAAMAAAAAAAIAAAAAAAEAAAABAAIAAAAAAAEAAAACAAIAAAAAAAEAAAADAAIAAAAAAAUAAAAEAAIAAAAAAAEAAAAFAAIAAAAAAAEAAAAGAAIAAAAAAAEAAAAAAAMAAAAAAAEAAAABAAMAAAAAAAEAAAACAAMAAAAAAAEAAAADAAMAAAAAAAUAAAAEAAMAAAAAAAEAAAAFAAMAAAAAAAEAAAAGAAMAAAAAAAEAAAAAAAQAAAAAAAEAAAABAAQAAAAAAAEAAAACAAQAAAAAAAEAAAADAAQAAAAAAAUAAAAEAAQAAAAAAAEAAAAFAAQAAAAAAAEAAAAGAAQAAAAAAAEAAAAAAAUAAAAAAAIAAAABAAUAAAAAAAIAAAACAAUAAAAAAAIAAAADAAUAAAAAAAIAAAAEAAUAAAAAAAIAAAAFAAUAAAAAAAIAAAAGAAUAAAAAAAIAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="Areas" type="Node2D" parent="." unique_id=1928734511]
+
+[node name="Floor" type="Node2D" parent="Areas" unique_id=673445016]
+script = ExtResource("3_eic36")
+display_name = "Floor"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/Floor" unique_id=1242595922]
+tile_map_data = PackedByteArray("AAAAAAUAAAABAAIAAAABAAUAAAABAAIAAAACAAUAAAABAAIAAAADAAUAAAABAAIAAAAEAAUAAAABAAIAAAAFAAUAAAABAAIAAAAGAAUAAAABAAIAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="LeftWall" type="Node2D" parent="Areas" unique_id=587455799]
+script = ExtResource("3_eic36")
+display_name = "Left wall"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+requires = Array[NodePath]([NodePath("../Floor")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/LeftWall" unique_id=1363409034]
+tile_map_data = PackedByteArray("AAAAAAIAAAABAAEAAAABAAIAAAABAAEAAAACAAIAAAABAAEAAAAAAAMAAAABAAEAAAABAAMAAAABAAEAAAACAAMAAAABAAEAAAAAAAQAAAABAAEAAAABAAQAAAABAAEAAAACAAQAAAABAAEAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="RightWall" type="Node2D" parent="Areas" unique_id=1461882149]
+script = ExtResource("3_eic36")
+display_name = "Right wall"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+requires = Array[NodePath]([NodePath("../Floor")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/RightWall" unique_id=1181653629]
+tile_map_data = PackedByteArray("AAAEAAIAAAABAAEAAAAFAAIAAAABAAEAAAAGAAIAAAABAAEAAAAEAAMAAAABAAEAAAAFAAMAAAABAAEAAAAGAAMAAAABAAEAAAAEAAQAAAABAAEAAAAFAAQAAAABAAEAAAAGAAQAAAABAAEAAAA=")
+tile_set = ExtResource("2_55sm1")
+
+[node name="Roof" type="Node2D" parent="Areas" unique_id=926424905]
+script = ExtResource("3_eic36")
+display_name = "Roof"
+steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+requires = Array[NodePath]([NodePath("../LeftWall"), NodePath("../RightWall")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/Roof" unique_id=491636939]
+tile_map_data = PackedByteArray("AAABAAAAAAABAAQAAAACAAAAAAAAAAQAAAADAAAAAAAAAAQAAAAEAAAAAAAAAAQAAAAFAAAAAAACAAQAAAAAAAEAAAABAAQAAAABAAEAAAAAAAQAAAACAAEAAAAAAAQAAAADAAEAAAAAAAQAAAAEAAEAAAAAAAQAAAAFAAEAAAAAAAQAAAAGAAEAAAACAAQAAAA=")
+tile_set = ExtResource("2_55sm1")
