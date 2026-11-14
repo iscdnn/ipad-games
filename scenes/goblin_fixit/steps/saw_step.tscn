@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/goblin_fixit/steps/saw_step.gd" id="1_m5muc"]
 
-[node name="SawStep" type="Control" unique_id=1474633744]
+[node name="SawStep" type="Control" unique_id=1482846084]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_m5muc")

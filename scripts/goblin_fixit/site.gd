@@ -4,11 +4,13 @@ extends Node2D
 ##
 ## Top-down view: flat green background, building centred on screen.
 ## World is authored in art pixels (16px tiles, scale 1). The Camera2D zoom
-## sets how big art pixels appear; the pop-up window uses the same zoom for
-## its art so both match.
+## sets how big art pixels appear. Pop-up art has its own `ui_art_scale`.
 
-## Screen pixels per art pixel, for the world camera and the pop-up art.
-@export var pixel_zoom := 2.0
+## Screen pixels per art pixel for the world (sets the camera zoom).
+@export var pixel_zoom := 3.0
+## Scale of the pop-up step art (UI layer, independent of the world zoom).
+## Use 0.5 for hi-res sprites drawn at 2x for the iPad screen.
+@export var ui_art_scale := 2.0
 ## Goblin distance from the left screen edge, in art pixels.
 @export var goblin_margin := 24.0
 
@@ -60,7 +62,7 @@ func _fix(area: WorkArea) -> void:
 	_busy = true
 	Sfx.play(&"tap")
 	building.clear_highlights()
-	await window.run(area, pixel_zoom)
+	await window.run(area, ui_art_scale)
 	area.complete()
 	Sfx.play(&"area_done")
 	await goblin.cheer()

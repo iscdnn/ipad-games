@@ -19,7 +19,7 @@ signal completed
 @export var requires: Array[NodePath] = []
 
 @export_group("Highlight")
-## Marching-ants outline, in art pixels.
+## Marching-ants outline, in art pixels. Each ant is followed by an equal gap.
 @export var ant_length := 2.0
 @export var ant_speed := 8.0
 @export var ant_width := 1.0
@@ -195,8 +195,10 @@ func _draw() -> void:
 			while u < seg:
 				var v := minf((idx + 1) * ant_length - s0, seg)
 				if v > u:
-					var col: Color = ant_colors[posmod(idx, ant_colors.size())]
-					draw_line(a.lerp(b, u / seg), a.lerp(b, v / seg), col, ant_width)
+					# even slots are ants, odd slots are gaps; ants alternate colours
+					if posmod(idx, 2) == 0:
+						var col: Color = ant_colors[posmod(floori(idx / 2.0), ant_colors.size())]
+						draw_line(a.lerp(b, u / seg), a.lerp(b, v / seg), col, ant_width)
 					u = v
 				idx += 1
 			walked += seg
