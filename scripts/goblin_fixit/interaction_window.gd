@@ -57,11 +57,12 @@ func _layout() -> void:
 	_panel.position = (vp - PANEL_SIZE) / 2.0
 
 
-func run(area: WorkArea) -> void:
+func run(area: WorkArea, art_scale := 2.0) -> void:
 	await _open()
 	for scene in area.steps:
 		var step := scene.instantiate() as FixStep
 		step.area = area
+		step.art_scale = art_scale
 		step.size = _holder.size
 		step.modulate.a = 0.0
 		_holder.add_child(step)

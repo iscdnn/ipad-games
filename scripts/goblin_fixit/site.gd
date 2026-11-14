@@ -1,12 +1,21 @@
 extends Node2D
-## Goblin Fix-It: the building site. Tap a glowing part of the building,
+## Goblin Fix-It: the building site. Tap a highlighted part of the building,
 ## the goblin walks over, the fix-it window pops up, the part gets repaired.
+##
+## World is authored in art pixels (16px tiles, scale 1). The Camera2D zoom
+## sets how big art pixels appear; the pop-up window uses the same zoom for
+## its art so both match.
 
+## Screen pixels per art pixel, for the world camera and the pop-up art.
+@export var pixel_zoom := 2.0
+## Rows of ground tiles visible below the building.
+@export var ground_rows_visible := 2
 @export var ground_tile := Vector2i(0, 0)
 @export var dirt_tile := Vector2i(1, 0)
 
 var _busy := false
 
+@onready var camera: Camera2D = $Camera
 @onready var ground: TileMapLayer = $Ground
 @onready var building: Building = $Building
 @onready var goblin: Goblin = $Goblin
@@ -21,29 +30,28 @@ func _ready() -> void:
 	again_button.pressed.connect(_on_again)
 	done_label.visible = false
 	again_button.visible = false
+	# ground surface is world y = 0, building centred on x = 0
+	var bs := building.size_px()
+	building.position = Vector2(roundf(-bs.x / 2.0), -bs.y)
+	goblin.position = Vector2(building.position.x - 24.0, 0.0)
 	_layout()
-	goblin.position = Vector2(building.position.x - 90.0, _ground_y())
 	building.refresh_highlights()
 
 
-func _ground_y() -> float:
-	return get_viewport_rect().size.y - ground.tile_set.tile_size.y * ground.scale.y
-
-
+## Camera keeps the ground at the bottom of the screen; extra screen space
+## (other iPad shapes, `expand` stretch) shows more sky / more ground sideways.
 func _layout() -> void:
-	var vp := get_viewport_rect().size
-	var gy := _ground_y()
-	# fill ground across the whole width
+	camera.zoom = Vector2.ONE * pixel_zoom
+	var view := get_viewport_rect().size / pixel_zoom
+	var tile := Vector2(ground.tile_set.tile_size)
+	camera.position = Vector2(0.0, ground_rows_visible * tile.y - view.y / 2.0)
 	ground.clear()
-	ground.position = Vector2(0, gy)
-	var tile_w := ground.tile_set.tile_size.x * ground.scale.x
-	for x in ceili(vp.x / tile_w) + 1:
+	var half_cols := ceili(view.x / 2.0 / tile.x) + 1
+	for x in range(-half_cols, half_cols):
 		ground.set_cell(Vector2i(x, 0), 0, ground_tile)
-		for y in range(1, 3):
+		for y in range(1, ground_rows_visible + 1):
 			ground.set_cell(Vector2i(x, y), 0, dirt_tile)
-	var bs := building.size_px()
-	building.position = Vector2(roundf((vp.x - bs.x) / 2.0), gy - bs.y)
-	goblin.position.y = gy
+	var vp := get_viewport_rect().size
 	confetti.position = Vector2(vp.x / 2.0, -20.0)
 	confetti.emission_rect_extents = Vector2(vp.x / 2.0, 10.0)
 
@@ -65,10 +73,10 @@ func _fix(area: WorkArea) -> void:
 	var r := area.global_rect()
 	var b_left := building.position.x
 	var b_right := b_left + building.size_px().x
-	var target := clampf(r.get_center().x, b_left - 60.0, b_right + 60.0)
+	var target := clampf(r.get_center().x, b_left - 16.0, b_right + 16.0)
 	await goblin.walk_to(target)
 	goblin.face(r.get_center().x)
-	await window.run(area)
+	await window.run(area, pixel_zoom)
 	area.complete()
 	Sfx.play(&"area_done")
 	await goblin.cheer()

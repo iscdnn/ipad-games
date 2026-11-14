@@ -3,7 +3,7 @@ extends Node2D
 ## The goblin builder. Sprite sheet: 4 frames [idle0, idle1, walk0, walk1],
 ## drawn facing right, feet at the bottom.
 
-@export var speed := 420.0
+@export var speed := 120.0
 
 var _walking := false
 var _anim_t := 0.0
@@ -31,7 +31,7 @@ func face(x: float) -> void:
 func cheer(times := 1) -> void:
 	for i in times:
 		var tw := create_tween()
-		tw.tween_property(sprite, "position:y", -14.0, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		tw.tween_property(sprite, "position:y", -6.0, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 		tw.tween_property(sprite, "position:y", 0.0, 0.16).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 		await tw.finished
 

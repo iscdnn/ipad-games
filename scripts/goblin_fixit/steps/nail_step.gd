@@ -6,7 +6,7 @@ extends FixStep
 @export var hammer_texture: Texture2D = preload("res://assets/sprites/hammer.png")
 @export var box_texture: Texture2D = preload("res://assets/sprites/nail_box.png")
 ## Rows of nail_texture that make the head (always visible).
-@export var nail_head_px := 4
+@export var nail_head_px := 3
 ## Point on hammer_texture used as the swing pivot (end of the handle).
 @export var hammer_pivot := Vector2(64, 12)
 ## Hammer-head centre, measured from the pivot, in texture pixels.
@@ -18,8 +18,6 @@ extends FixStep
 @export var max_drive := 1.0
 @export var snap_distance := 90.0
 
-const NAIL_SCALE := 1.6
-const HAMMER_SCALE := 2.5
 const RAISED := 1.15 # hammer rotation when fully charged
 const REST := 0.35
 
@@ -61,7 +59,7 @@ func begin() -> void:
 	_hammer.texture = hammer_texture
 	_hammer.centered = false
 	_hammer.offset = -hammer_pivot
-	_hammer.scale = Vector2.ONE * HAMMER_SCALE
+	_hammer.scale = Vector2.ONE * art_scale
 	_hammer.visible = false
 	add_child(_hammer)
 	move_child(top, -1)
@@ -74,7 +72,7 @@ func _make_nail() -> Sprite2D:
 	s.texture = nail_texture
 	s.centered = false
 	s.region_enabled = true
-	s.scale = Vector2.ONE * NAIL_SCALE
+	s.scale = Vector2.ONE * art_scale
 	_set_nail_depth(s, 0.0)
 	return s
 
@@ -91,7 +89,7 @@ func _set_nail_depth(s: Sprite2D, depth: float) -> void:
 func _nail_top(spot: Dictionary) -> Vector2:
 	var shaft := nail_texture.get_height() - nail_head_px
 	var visible_h := nail_head_px + roundi(shaft * (1.0 - spot.depth))
-	return spot.pos - Vector2(0, (visible_h - 1) * NAIL_SCALE)
+	return spot.pos - Vector2(0, (visible_h - 1) * art_scale)
 
 
 # --- input ---------------------------------------------------------------
@@ -190,7 +188,7 @@ func _start_charge(i: int) -> void:
 func _place_hammer(i: int) -> void:
 	var head := _nail_top(_spots[i])
 	var head_half_h := hammer_texture.get_height() / 2.0
-	_hammer.position = head - (hammer_head_offset + Vector2(0, head_half_h)) * HAMMER_SCALE
+	_hammer.position = head - (hammer_head_offset + Vector2(0, head_half_h)) * art_scale
 
 
 func _swing() -> void:

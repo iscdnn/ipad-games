@@ -12,7 +12,8 @@ signal completed
 @export var board_texture: Texture2D = preload("res://assets/sprites/board.png")
 ## Pixel width of board_texture that remains after the cut (the rest is offcut).
 @export var board_keep_px := 120
-@export var art_scale := 3.0
+## Screen pixels per art pixel; the window sets this from the minigame zoom.
+@export var art_scale := 2.0
 
 var area: WorkArea
 var under: Node2D

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/goblin_fixit/steps/nail_step.gd" id="1_55yld"]
 
-[node name="NailStep" type="Control" unique_id=770763913]
+[node name="NailStep" type="Control" unique_id=1819901324]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_55yld")

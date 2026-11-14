@@ -8,6 +8,9 @@ extends Node2D
 
 signal all_done
 
+## Extra tap area around each work area, in art pixels (half a 16px tile).
+@export var tap_padding := 8.0
+
 @onready var structure: TileMapLayer = $Structure
 
 
@@ -29,14 +32,21 @@ func clear_highlights() -> void:
 		a.highlighted = false
 
 
-## Topmost available area under a global point, or null.
+## Available area for a tap at a global point, or null. Each area's tap region
+## is its cells grown by `tap_padding` (art px); where padded regions overlap,
+## the area whose cells are nearest the tap wins. Locked (not yet available)
+## areas still compete, so padding never steals a tap from their tiles.
 func area_at(global_point: Vector2) -> WorkArea:
-	var list := areas()
-	list.reverse()
-	for a in list:
-		if a.is_available() and a.global_rect().has_point(global_point):
-			return a
-	return null
+	var best: WorkArea = null
+	var best_d := INF
+	for a in areas():
+		if a.done:
+			continue
+		var d := a.distance_to_local(a.to_local(global_point))
+		if d <= tap_padding and d < best_d:
+			best_d = d
+			best = a
+	return best if best and best.is_available() else null
 
 
 func is_complete() -> bool:
