@@ -33,6 +33,9 @@ Main scene `scenes/goblin_fixit/site.tscn`. Top-down 2D view (not isometric),
 flat green background, camera centred on the building. Tap a highlighted work
 area, pop-up window runs its interaction chain, its tiles swap to repaired.
 Goblin stands static at the left screen edge for now (walking later).
+Goblin anims (`assets/anim/goblin_frames.tres`): idle default; while a pop-up
+step runs it loops the step's `goblin_animation` (default `do`, nail step
+`hammer`); `jump` once on area complete, then idle.
 - `shed.tscn` (Building): `Structure` TileMapLayer = broken building;
   `Areas/<WorkArea>` each with `Fixed` TileMapLayer = repaired tiles drawn over
   it once done. Painted Fixed cells = the area (any contiguous shape).

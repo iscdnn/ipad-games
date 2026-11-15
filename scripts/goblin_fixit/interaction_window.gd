@@ -3,6 +3,8 @@ extends CanvasLayer
 ## Pop-up that plays a WorkArea's steps one after another.
 ## Usage:  await window.run(area)
 
+signal step_started(step: FixStep)
+
 const PANEL_SIZE := Vector2(1100, 620)
 const TITLE_H := 90.0
 
@@ -67,6 +69,7 @@ func run(area: WorkArea, art_scale := 2.0) -> void:
 		step.modulate.a = 0.0
 		_holder.add_child(step)
 		step.begin()
+		step_started.emit(step)
 		_title.text = step.title
 		create_tween().tween_property(step, "modulate:a", 1.0, 0.2)
 		await step.completed
