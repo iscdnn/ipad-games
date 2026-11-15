@@ -1,51 +1,55 @@
 class_name Goblin
 extends Node2D
-## The goblin builder. Sprite sheet: 4 frames [idle0, idle1, walk0, walk1],
-## drawn facing right, feet at the bottom. A 1-frame sheet skips animation.
+## The goblin builder. AnimatedSprite2D with assets/anim/goblin_frames.tres.
+## Animations used:
+##   idle   - default, loops
+##   walk   - loops while walking
+##   do     - default action, loops while a pop-up step runs
+##   hammer - loops during the nail step
+##   jump   - one-shot cheer (loop off)
 ## walk_to() is unused for now (goblin stands at the screen edge).
 
 @export var speed := 120.0
 
-var _walking := false
-var _anim_t := 0.0
-var _frame_flip := false
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
-@onready var sprite: Sprite2D = $Sprite
+
+func _ready() -> void:
+	sprite.play(&"idle")
+
+
+func idle() -> void:
+	sprite.play(&"idle")
+
+
+## Loops an action animation (e.g. "do", "hammer") until idle() or cheer().
+func play_action(anim: StringName) -> void:
+	if sprite.sprite_frames.has_animation(anim):
+		sprite.play(anim)
+	else:
+		push_warning("Goblin: no animation '%s', using do" % anim)
+		sprite.play(&"do")
 
 
 func walk_to(x: float) -> void:
 	var dist := absf(x - position.x)
-	if dist < 4.0:
+	if dist < 1.0:
 		return
-	sprite.flip_h = x < position.x
-	_walking = true
+	face(x)
+	sprite.play(&"walk")
 	var tw := create_tween()
 	tw.tween_property(self, "position:x", x, dist / speed)
 	await tw.finished
-	_walking = false
+	sprite.play(&"idle")
 
 
 func face(x: float) -> void:
 	sprite.flip_h = x < position.x
 
 
+## Plays the jump animation `times` times, then returns to idle.
 func cheer(times := 1) -> void:
 	for i in times:
-		var tw := create_tween()
-		tw.tween_property(sprite, "position:y", -6.0, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-		tw.tween_property(sprite, "position:y", 0.0, 0.16).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
-		await tw.finished
-
-
-func _process(delta: float) -> void:
-	if sprite.hframes < 4:
-		return # single-frame placeholder, no animation
-	_anim_t += delta
-	var period := 0.12 if _walking else 0.5
-	if _anim_t >= period:
-		_anim_t = 0.0
-		_frame_flip = not _frame_flip
-		if _walking:
-			Sfx.play(&"step", 1.0, -10.0)
-	var base := 2 if _walking else 0
-	sprite.frame = base + (1 if _frame_flip else 0)
+		sprite.play(&"jump")
+		await sprite.animation_finished
+	sprite.play(&"idle")
