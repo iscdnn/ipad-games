@@ -1756,6 +1756,8 @@ texture = ExtResource("1_6nthr")
 23:1/0 = 0
 24:1/0 = 0
 25:1/0 = 0
+13:34/0 = 0
+13:35/0 = 0
 
 [resource]
 sources/0 = SubResource("TileSetAtlasSource_svdmw")
