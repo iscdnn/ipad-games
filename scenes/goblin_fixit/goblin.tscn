@@ -1,12 +1,11 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cff3xjun6x0em"]
 
-[ext_resource type="Script" path="res://scripts/goblin_fixit/goblin.gd" id="1_q7rdf"]
-[ext_resource type="Texture2D" path="res://assets/sprites/goblin.png" id="2_mdpff"]
+[ext_resource type="Script" uid="uid://n4fr0lp2g41d" path="res://scripts/goblin_fixit/goblin.gd" id="1_q7rdf"]
+[ext_resource type="SpriteFrames" uid="uid://dvb4gyo6huudg" path="res://assets/anim/goblin_frames.tres" id="2_q7rdf"]
 
 [node name="Goblin" type="Node2D" unique_id=301900675]
 script = ExtResource("1_q7rdf")
 
-[node name="Sprite" type="Sprite2D" parent="." unique_id=85210779]
-texture = ExtResource("2_mdpff")
-centered = false
-offset = Vector2(-8, -16)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1109636276]
+sprite_frames = ExtResource("2_q7rdf")
+animation = &"idle"
