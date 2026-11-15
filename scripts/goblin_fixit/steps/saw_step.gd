@@ -38,7 +38,7 @@ func begin() -> void:
 	title = "Saw the boards!"
 	var full_w := board_texture.get_width() * art_scale
 	var h := board_texture.get_height() * art_scale
-	_board_center = Vector2(size.x * 0.48, size.y * 0.62)
+	_board_center = pr(0.5, 0.62)
 	var left := _board_center.x - full_w / 2.0
 	_cut_x = left + board_keep_px * art_scale
 	_board_top = _board_center.y - h / 2.0
@@ -94,7 +94,7 @@ func _new_board(animate := true) -> void:
 	_keep.scale = Vector2.ONE * art_scale
 	_update_visuals()
 	if animate:
-		var shift := Vector2(-size.x, 0)
+		var shift := Vector2(-panel_rect.size.x, 0)
 		_keep.position = keep_pos + shift
 		_offcut.position = off_pos + shift
 		_saw.modulate.a = 0.0
@@ -167,7 +167,7 @@ func _cut_done() -> void:
 	pile_board.position = _keep.position
 	add_child(pile_board)
 	_keep.modulate.a = 0.0
-	var pile_pos := Vector2(size.x - 150.0, 70.0 + _pile.size() * 40.0)
+	var pile_pos := Vector2(panel_rect.end.x - 120.0, panel_rect.position.y + 30.0 + _pile.size() * 40.0)
 	_pile.append(pile_board)
 	tw.tween_property(pile_board, "position", pile_pos, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(pile_board, "scale", Vector2.ONE * art_scale * 0.6, 0.5)

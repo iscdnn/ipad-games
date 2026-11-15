@@ -34,8 +34,14 @@ flat green background, camera centred on the building. Tap a highlighted work
 area, pop-up window runs its interaction chain, its tiles swap to repaired.
 Goblin stands static at the left screen edge for now (walking later).
 Goblin anims (`assets/anim/goblin_frames.tres`): idle default; while a pop-up
-step runs it loops the step's `goblin_animation` (default `do`, nail step
-`hammer`); `jump` once on area complete, then idle.
+step runs it loops the step's `goblin_animation` (default `do`; place + nail
+steps `carry`); `jump` once on area complete, then idle.
+Tap area -> camera tweens to a goblin close-up (`closeup_zoom` 8, goblin centred
+in the space left of the panel) -> pop-up slides in on the right
+(`panel_width` 0.6 of screen) -> steps -> pop-up out -> camera back to overview.
+Boards (place) and nails (nail) are dragged from the box on the goblin's head
+(`carry_box_offset` on Goblin). Steps cover the full screen for input and lay
+out inside `panel_rect`.
 - `shed.tscn` (Building): `Structure` TileMapLayer = broken building;
   `Areas/<WorkArea>` each with `Fixed` TileMapLayer = repaired tiles drawn over
   it once done. Painted Fixed cells = the area (any contiguous shape).

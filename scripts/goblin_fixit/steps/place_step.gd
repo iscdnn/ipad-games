@@ -1,5 +1,6 @@
 extends FixStep
-## Drag the cut boards from the pile into the outlined spots on the frame.
+## Drag the cut boards from the stack on the goblin's head into the outlined
+## spots on the frame.
 
 ## How close (px) a dropped board must be to a slot to snap in.
 @export var snap_distance := 150.0
@@ -19,15 +20,16 @@ var _placed_count := 0
 func begin() -> void:
 	super.begin()
 	title = "Put the boards on!"
-	_slots = slot_rects(Vector2(size.x * 0.66, size.y * 0.5))
+	_slots = slot_rects(pr(0.5, 0.5))
 	var n := _slots.size()
 	_filled.resize(n)
 	_filled.fill(false)
 	var bs := board_size()
 	for i in n:
 		var b := make_board()
-		var home := Vector2(size.x * 0.2, size.y * 0.5 + (i - (n - 1) / 2.0) * (bs.y + 26.0))
-		var rot := randf_range(-0.08, 0.08)
+		# stacked on the box on the goblin's head
+		var home := source_point - Vector2(0, bs.y * 0.5 + i * 10.0)
+		var rot := randf_range(-0.05, 0.05)
 		b.position = home
 		b.rotation = rot
 		add_child(b)
@@ -127,7 +129,7 @@ func _draw_top() -> void:
 	# hint: arrow from first loose board to first empty slot, until one is placed
 	if _placed_count > 0 or _held >= 0 or _t < 1.0:
 		return
-	var from := _homes[0] + Vector2(board_size().x / 2.0 + 10.0, 0)
+	var from := _homes[_homes.size() - 1] + Vector2(board_size().x / 2.0 + 10.0, 0)
 	var to := _slots[0].get_center() - Vector2(board_size().x / 2.0 + 10.0, 0)
 	var k := fmod(_t, 1.4) / 1.4
 	draw_arrow(top, from, from.lerp(to, k), Color(1, 1, 1, 0.8 * (1.0 - k * 0.5)), 10.0)

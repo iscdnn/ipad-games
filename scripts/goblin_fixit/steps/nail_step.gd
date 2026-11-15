@@ -1,10 +1,9 @@
 extends FixStep
-## Drag nails from the box onto the marked spots, then press and hold a nail
+## Drag nails from the box on the goblin's head onto the marked spots, then press and hold a nail
 ## to charge the hammer and let go to swing. Bigger charge = deeper nail.
 
 @export var nail_texture: Texture2D = preload("res://assets/sprites/nail.png")
 @export var hammer_texture: Texture2D = preload("res://assets/sprites/hammer.png")
-@export var box_texture: Texture2D = preload("res://assets/sprites/nail_box.png")
 ## Rows of nail_texture that make the head (always visible).
 @export var nail_head_px := 3
 ## Point on hammer_texture used as the swing pivot (end of the handle).
@@ -23,7 +22,6 @@ const REST := 0.35
 
 var _slots: Array[Rect2] = []
 var _spots: Array[Dictionary] = [] # {pos, placed, depth, sprite}
-var _box: Sprite2D
 var _hammer: Sprite2D
 var _drag_nail: Sprite2D
 var _charging := -1
@@ -37,7 +35,7 @@ var _boards_root: Node2D
 func begin() -> void:
 	super.begin()
 	title = "Hammer the nails!"
-	_slots = slot_rects(Vector2(size.x * 0.62, size.y * 0.6))
+	_slots = slot_rects(pr(0.5, 0.55))
 	_boards_root = Node2D.new()
 	add_child(_boards_root)
 	for r in _slots:
@@ -49,11 +47,6 @@ func begin() -> void:
 			var fx := 0.12 + 0.76 * (float(k) / float(maxi(n - 1, 1))) if n > 1 else 0.5
 			_spots.append({"pos": Vector2(r.position.x + r.size.x * fx, r.get_center().y), "placed": false, "depth": 0.0, "sprite": null})
 
-	_box = Sprite2D.new()
-	_box.texture = box_texture
-	_box.scale = Vector2.ONE * art_scale
-	_box.position = Vector2(size.x * 0.13, size.y * 0.55)
-	add_child(_box)
 
 	_hammer = Sprite2D.new()
 	_hammer.texture = hammer_texture
@@ -112,9 +105,8 @@ func _press(p: Vector2) -> void:
 	if i >= 0:
 		_start_charge(i)
 		return
-	# grab a nail from the box
-	var box_rect := Rect2(_box.position - _box.texture.get_size() * art_scale / 2.0, _box.texture.get_size() * art_scale).grow(20.0)
-	if box_rect.has_point(p) and _next_free_spot() >= 0:
+	# grab a nail from the box on the goblin's head
+	if source_rect().has_point(p) and _next_free_spot() >= 0:
 		_drag_nail = _make_nail()
 		_drag_nail.position = p + Vector2(0, -30)
 		add_child(_drag_nail)
@@ -290,7 +282,7 @@ func _draw_top() -> void:
 	var free_i := _next_free_spot()
 	if not any_placed and free_i >= 0:
 		# drag from box to spot
-		var from := _box.position + Vector2(0, -60)
+		var from := source_point
 		var to: Vector2 = _spots[free_i].pos
 		var k := fmod(_t, 1.4) / 1.4
 		draw_arrow(top, from, from.lerp(to - (to - from).normalized() * 30.0, k), Color(1, 1, 1, 0.8), 10.0)

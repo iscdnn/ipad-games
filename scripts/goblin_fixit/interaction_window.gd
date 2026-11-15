@@ -1,14 +1,19 @@
 class_name InteractionWindow
 extends CanvasLayer
 ## Pop-up that plays a WorkArea's steps one after another.
-## Usage:  await window.run(area)
+## The panel sits on the right of the screen; the left is left clear so the
+## goblin close-up shows. Steps cover the whole screen for input (so drags can
+## start on the goblin), but lay out their content inside `panel_rect`.
+## Usage:  await window.run(area, ui_art_scale, source_point)
 
 signal step_started(step: FixStep)
 
-const PANEL_SIZE := Vector2(1100, 620)
-const TITLE_H := 90.0
+## Fraction of the screen width the panel takes, from the right edge.
+@export_range(0.3, 0.9) var panel_width := 0.6
+@export var margin := 20.0
+@export var title_height := 90.0
 
-var _dim: ColorRect
+var _blocker: Control
 var _panel: Panel
 var _title: Label
 var _holder: Control
@@ -17,11 +22,11 @@ var _holder: Control
 func _ready() -> void:
 	layer = 10
 	visible = false
-	_dim = ColorRect.new()
-	_dim.color = Color(0, 0, 0, 0.45)
-	_dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(_dim)
+	# invisible full-screen catcher so taps never reach the world underneath
+	_blocker = Control.new()
+	_blocker.mouse_filter = Control.MOUSE_FILTER_STOP
+	_blocker.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_blocker)
 
 	_panel = Panel.new()
 	var sb := StyleBoxFlat.new()
@@ -30,25 +35,21 @@ func _ready() -> void:
 	sb.set_border_width_all(8)
 	sb.set_corner_radius_all(28)
 	_panel.add_theme_stylebox_override("panel", sb)
-	_panel.size = PANEL_SIZE
-	_panel.pivot_offset = PANEL_SIZE / 2.0
-	_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_panel)
 
 	_title = Label.new()
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_title.position = Vector2.ZERO
-	_title.size = Vector2(PANEL_SIZE.x, TITLE_H)
 	_title.add_theme_font_size_override("font_size", 48)
 	_title.add_theme_color_override("font_color", Color(0.35, 0.2, 0.08))
 	_panel.add_child(_title)
 
+	# steps live here: full screen, above the panel
 	_holder = Control.new()
-	_holder.position = Vector2(40, TITLE_H)
-	_holder.size = PANEL_SIZE - Vector2(80, TITLE_H + 30)
-	_holder.clip_contents = false
-	_panel.add_child(_holder)
+	_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_holder.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_holder)
 
 	get_viewport().size_changed.connect(_layout)
 	_layout()
@@ -56,16 +57,29 @@ func _ready() -> void:
 
 func _layout() -> void:
 	var vp := get_viewport().get_visible_rect().size
-	_panel.position = (vp - PANEL_SIZE) / 2.0
+	var w := vp.x * panel_width
+	_panel.position = Vector2(vp.x - w, margin)
+	_panel.size = Vector2(w - margin, vp.y - margin * 2.0)
+	_title.size = Vector2(_panel.size.x, title_height)
 
 
-func run(area: WorkArea, art_scale := 2.0) -> void:
+## Step content area in screen coordinates (inside the panel, below the title).
+func panel_rect() -> Rect2:
+	var r := Rect2(_panel.position, _panel.size)
+	return Rect2(r.position + Vector2(30, title_height), r.size - Vector2(60, title_height + 30))
+
+
+## `source_point`: screen position boards/nails come from (box on the goblin's head).
+func run(area: WorkArea, art_scale := 2.0, source_point := Vector2.ZERO) -> void:
 	await _open()
 	for scene in area.steps:
 		var step := scene.instantiate() as FixStep
 		step.area = area
 		step.art_scale = art_scale
-		step.size = _holder.size
+		step.panel_rect = panel_rect()
+		step.source_point = source_point
+		step.position = Vector2.ZERO
+		step.size = get_viewport().get_visible_rect().size
 		step.modulate.a = 0.0
 		_holder.add_child(step)
 		step.begin()
@@ -82,24 +96,22 @@ func run(area: WorkArea, art_scale := 2.0) -> void:
 
 
 func _open() -> void:
+	_layout()
 	_title.text = ""
 	visible = true
-	_dim.modulate.a = 0.0
-	_panel.scale = Vector2.ONE * 0.7
-	_panel.modulate.a = 0.0
+	var vp := get_viewport().get_visible_rect().size
+	var x := _panel.position.x
+	_panel.position.x = vp.x
 	Sfx.play(&"whoosh")
-	var tw := create_tween().set_parallel()
-	tw.tween_property(_dim, "modulate:a", 1.0, 0.2)
-	tw.tween_property(_panel, "modulate:a", 1.0, 0.2)
-	tw.tween_property(_panel, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var tw := create_tween()
+	tw.tween_property(_panel, "position:x", x, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await tw.finished
 
 
 func _close() -> void:
 	Sfx.play(&"whoosh", 1.2)
-	var tw := create_tween().set_parallel()
-	tw.tween_property(_dim, "modulate:a", 0.0, 0.2)
-	tw.tween_property(_panel, "modulate:a", 0.0, 0.2)
-	tw.tween_property(_panel, "scale", Vector2.ONE * 0.8, 0.2)
+	var vp := get_viewport().get_visible_rect().size
+	var tw := create_tween()
+	tw.tween_property(_panel, "position:x", vp.x, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tw.finished
 	visible = false

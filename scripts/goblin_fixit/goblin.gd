@@ -6,10 +6,14 @@ extends Node2D
 ##   walk   - loops while walking
 ##   do     - default action, loops while a pop-up step runs
 ##   hammer - loops during the nail step
+##   carry  - loops during place/nail steps (box on head = board/nail source)
 ##   jump   - one-shot cheer (loop off)
 ## walk_to() is unused for now (goblin stands at the screen edge).
 
 @export var speed := 120.0
+## Centre of the box on the goblin's head in the "carry" animation, in art px
+## relative to the goblin's origin. Boards and nails are dragged from here.
+@export var carry_box_offset := Vector2(0, -14)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 

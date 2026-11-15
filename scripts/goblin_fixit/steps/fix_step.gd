@@ -18,6 +18,11 @@ signal completed
 @export var art_scale := 2.0
 
 var area: WorkArea
+## Where step content goes (inside the pop-up panel), in this control's coords.
+## The control itself covers the whole screen so drags can start anywhere.
+var panel_rect := Rect2(0, 0, 1000, 500)
+## Screen point boards/nails are taken from (box on the goblin's head).
+var source_point := Vector2.ZERO
 var under: Node2D
 var top: Node2D
 var _finished := false
@@ -58,6 +63,16 @@ func finish(delay := 0.5) -> void:
 	_finished = true
 	await get_tree().create_timer(delay).timeout
 	completed.emit()
+
+
+## Point inside the panel content area, as fractions of its size.
+func pr(fx: float, fy: float) -> Vector2:
+	return panel_rect.position + panel_rect.size * Vector2(fx, fy)
+
+
+## Grab zone around the source box on the goblin's head.
+func source_rect() -> Rect2:
+	return Rect2(source_point - Vector2(70, 70), Vector2(140, 140))
 
 
 func board_count() -> int:
