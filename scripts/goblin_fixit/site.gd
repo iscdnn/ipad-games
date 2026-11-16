@@ -28,6 +28,7 @@ var _busy := false
 func _ready() -> void:
 	get_viewport().size_changed.connect(_layout)
 	again_button.pressed.connect(_on_again)
+	window.step_started.connect(func(step: FixStep): goblin.play_action(step.goblin_animation))
 	done_label.visible = false
 	again_button.visible = false
 	# building centred on world origin; camera looks at the origin
@@ -63,6 +64,7 @@ func _fix(area: WorkArea) -> void:
 	Sfx.play(&"tap")
 	building.clear_highlights()
 	await window.run(area, ui_art_scale)
+	goblin.idle()
 	area.complete()
 	Sfx.play(&"area_done")
 	await goblin.cheer()

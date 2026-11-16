@@ -9,6 +9,8 @@ extends Control
 signal completed
 
 @export var title := "Fix it!"
+## Goblin animation that loops while this step is open.
+@export var goblin_animation := &"do"
 @export var board_texture: Texture2D = preload("res://assets/sprites/board.png")
 ## Pixel width of board_texture that remains after the cut (the rest is offcut).
 @export var board_keep_px := 120
