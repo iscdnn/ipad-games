@@ -7,4 +7,4 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_55yld")
 title = "Hammer the nails!"
-goblin_animation = &"hammer"
+goblin_animation = &"carry"

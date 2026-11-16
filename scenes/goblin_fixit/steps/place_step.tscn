@@ -7,3 +7,4 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_5yag2")
 title = "Put the boards on!"
+goblin_animation = &"carry"
