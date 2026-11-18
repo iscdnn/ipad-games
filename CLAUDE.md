@@ -25,6 +25,11 @@ renderer. Web export into `/docs`, hosted on GitHub Pages, played on iPad
 - `scripts/core/sfx.gd` - autoload `Sfx`. `Sfx.play(&"name", pitch, volume_db, vary)`.
   Pitch variation via Godot's AudioStreamRandomizer. Register sounds in `SOUNDS`
   (several files per name = random variants).
+- `scripts/core/loop_sfx.gd` - `LoopSfx` player for sounds driven by continuous
+  input: `start(pitch)`, `keep_alive(pitch)`, `release()`; fades out on its own
+  when not kept alive (`idle_time` 0.08s, `fade_out` 0.06s). Never hard-stops.
+  Stream from `Sfx.stream(&"name")`; WAV imported Loop Mode Forward with
+  `loop_begin` just after the attack.
 - `assets/sprites`, `assets/sfx`, `assets/tiles` - placeholders.
 - `docs/` - web export output (has `.gdignore` so the editor skips it).
 
@@ -58,7 +63,8 @@ out inside `panel_rect`.
   grey structure, brown todo, green fixed, blue spare; tool art same sizes as
   before: board 160x24, saw 64x40, hammer 64x24, nail 8x24, box 64x48).
 - Steps (`scripts/goblin_fixit/steps/`): `FixStep` base; `saw_step` (drag back
-  and forth), `place_step` (drag boards into outlines), `nail_step` (drag nail
+  and forth; looping `saw_push`/`saw_pull` sounds follow the drag, direction
+  change restarts the attack, pitch follows speed, pause fades out), `place_step` (drag boards into outlines), `nail_step` (drag nail
   from box, hold to charge hammer, release to swing).
 - New building = new scene with same layout; new interaction = new FixStep scene.
 
