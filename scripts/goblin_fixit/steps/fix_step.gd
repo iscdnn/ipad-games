@@ -7,6 +7,7 @@ extends Control
 ## so outlines can sit beneath boards and hints can sit above everything.
 
 signal completed
+signal animate_goblin(anim: StringName)
 
 @export var title := "Fix it!"
 ## Goblin animation that loops while this step is open.
@@ -127,6 +128,8 @@ func make_board(uncut := false) -> Sprite2D:
 	s.scale = Vector2.ONE * art_scale
 	return s
 
+func play_goblin(anim: StringName) -> void:
+	animate_goblin.emit(anim)
 
 ## Draws a simple arrow, used for hints.
 static func draw_arrow(on: CanvasItem, from: Vector2, to: Vector2, color: Color, width := 8.0, both := false) -> void:

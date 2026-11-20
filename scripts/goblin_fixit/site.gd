@@ -34,7 +34,7 @@ var _closeup := false
 func _ready() -> void:
 	get_viewport().size_changed.connect(_layout)
 	again_button.pressed.connect(_on_again)
-	window.step_started.connect(func(step: FixStep): goblin.play_action(step.goblin_animation))
+	window.step_started.connect(_on_step_started)
 	done_label.visible = false
 	again_button.visible = false
 	# building centred on world origin; camera looks at the origin
@@ -125,3 +125,7 @@ func _on_again() -> void:
 	done_label.visible = false
 	again_button.visible = false
 	building.reset()
+
+func _on_step_started(step: FixStep) -> void:
+	goblin.play_action(step.goblin_animation) ## may remove at some point, just have steps drive the animation
+	step.animate_goblin.connect(goblin.play_action)

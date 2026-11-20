@@ -50,6 +50,13 @@ func walk_to(x: float) -> void:
 func face(x: float) -> void:
 	sprite.flip_h = x < position.x
 
+func hammer_windup() -> void:
+	sprite.play(&"hammer_windup")
+	
+func hammer_strike() -> void:
+	sprite.play(&"hammer_strike")
+	await sprite.animation_finished
+	sprite.play(&"idle")
 
 ## Plays the jump animation `times` times, then returns to idle.
 func cheer(times := 1) -> void:
