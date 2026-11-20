@@ -8,6 +8,12 @@ extends FixStep
 @export var cut_distance := 1300.0
 ## How far the saw can slide either side of the cut line.
 @export var slide_range := 110.0
+## Drag speed (px/s) mapped to saw sound pitch: slow -> pitch_range.x, fast -> .y.
+@export var pitch_speed := Vector2(200.0, 1500.0)
+@export var pitch_range := Vector2(0.85, 1.25)
+## Finger must travel this far backwards before the sound switches direction
+## (ignores tiny jitter).
+@export var reverse_px := 4.0
 
 var _boards_cut := 0
 var _progress := 0.0
@@ -15,11 +21,15 @@ var _slide := 0.0
 var _dragging := false
 var _last_x := 0.0
 var _dir := 0
-var _stroke := 0.0
 var _busy := true
 var _moved_t := 1.0
-var _ever_sawed := false
 var _t := 0.0
+var _rev := 0.0
+var _frame_moved := 0.0
+var _speed := 0.0
+
+var _push_sfx: LoopSfx
+var _pull_sfx: LoopSfx
 
 var _keep: Sprite2D
 var _offcut: Sprite2D
@@ -78,7 +88,23 @@ func begin() -> void:
 	_saw.scale = Vector2.ONE * art_scale
 	add_child(_saw)
 
+	_push_sfx = _make_loop(&"saw_push")
+	_pull_sfx = _make_loop(&"saw_pull")
+
 	_new_board(false)
+
+
+func _make_loop(sound_name: StringName) -> LoopSfx:
+	var p := LoopSfx.new()
+	p.stream = Sfx.stream(sound_name)
+	add_child(p)
+	return p
+
+
+func _release_sfx() -> void:
+	_push_sfx.release()
+	_pull_sfx.release()
+	_dir = 0
 
 
 func _new_board(animate := true) -> void:
@@ -122,7 +148,8 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_dragging = event.pressed
 		_last_x = event.position.x
-		_stroke = 0.0
+		if not _dragging:
+			_release_sfx()
 	elif event is InputEventMouseMotion and _dragging and not _busy:
 		var dx: float = event.position.x - _last_x
 		_last_x = event.position.x
@@ -132,12 +159,8 @@ func _gui_input(event: InputEvent) -> void:
 		if moved <= 0.0:
 			return
 		var d := signi(int(signf(_slide - before)))
-		if d != _dir and (_stroke > 50.0 or not _ever_sawed):
-			Sfx.play(&"saw", 1.0 if d > 0 else 0.85)
-			_stroke = 0.0
-		_dir = d
-		_stroke += moved
-		_ever_sawed = true
+		_frame_moved += moved
+		_saw_sound(d, moved)
 		_moved_t = 0.0
 		_progress = minf(_progress + moved / cut_distance, 1.0)
 		_update_visuals()
@@ -145,10 +168,45 @@ func _gui_input(event: InputEvent) -> void:
 			_cut_done()
 
 
+## Push and pull each have a looping player. Changing direction fades the
+## other one out and starts this one from its attack; pausing lets LoopSfx
+## fade it out on its own.
+func _saw_sound(d: int, moved: float) -> void:
+	if d != _dir and _dir != 0:
+		_rev += moved
+		if _rev < reverse_px:
+			_current_sfx().keep_alive(_pitch())
+			return
+	_rev = 0.0
+	var pitch := _pitch()
+	if d != _dir:
+		_dir = d
+		_other_sfx().release()
+		_current_sfx().start(pitch)
+	else:
+		_current_sfx().keep_alive(pitch)
+
+
+func _current_sfx() -> LoopSfx:
+	return _push_sfx if _dir > 0 else _pull_sfx
+
+
+func _other_sfx() -> LoopSfx:
+	return _pull_sfx if _dir > 0 else _push_sfx
+
+
+func _pitch() -> float:
+	var w := clampf(inverse_lerp(pitch_speed.x, pitch_speed.y, _speed), 0.0, 1.0)
+	return lerpf(pitch_range.x, pitch_range.y, w)
+
+
 func _process(delta: float) -> void:
 	super._process(delta)
 	_t += delta
 	_moved_t += delta
+	if delta > 0.0:
+		_speed = lerpf(_speed, _frame_moved / delta, 1.0 - exp(-10.0 * delta))
+	_frame_moved = 0.0
 	if _dust:
 		_dust.emitting = _moved_t < 0.12 and not _busy
 
@@ -156,6 +214,7 @@ func _process(delta: float) -> void:
 func _cut_done() -> void:
 	_busy = true
 	_dragging = false
+	_release_sfx()
 	Sfx.play(&"cut_done")
 	var tw := create_tween().set_parallel()
 	tw.tween_property(_offcut, "position", _offcut.position + Vector2(80, 360), 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
