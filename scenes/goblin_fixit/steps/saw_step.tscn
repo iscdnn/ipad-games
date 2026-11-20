@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://c78kx04te4qd7"]
 
-[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/saw_step.gd" id="1_m5muc"]
+[ext_resource type="Script" uid="uid://ipqqhmt4tusn" path="res://scripts/goblin_fixit/steps/saw_step.gd" id="1_m5muc"]
 
 [node name="SawStep" type="Control" unique_id=1482846084]
 layout_mode = 3
