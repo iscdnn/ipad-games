@@ -25,6 +25,10 @@ renderer. Web export into `/docs`, hosted on GitHub Pages, played on iPad
 - `scripts/core/sfx.gd` - autoload `Sfx`. `Sfx.play(&"name", pitch, volume_db, vary)`.
   Pitch variation via Godot's AudioStreamRandomizer. Register sounds in `SOUNDS`
   (several files per name = random variants).
+- `scripts/core/glow.gd` - `Glow.set_state(item, Glow.OFF / IDLE / ACTIVE)`:
+  outline glow on usable objects (idle = faint white pulse, active = bright
+  purple). Shader `shaders/outline_glow.gdshader` grows the quad by `radius`
+  texels so full-texture sprites have room; full-texture sprites only.
 - `assets/sprites`, `assets/sfx`, `assets/tiles` - placeholders.
 - `docs/` - web export output (has `.gdignore` so the editor skips it).
 

@@ -77,6 +77,7 @@ func begin() -> void:
 	_saw.offset = -saw_tooth_point
 	_saw.scale = Vector2.ONE * art_scale
 	add_child(_saw)
+	Glow.set_state(_saw, Glow.OFF, 0.0)
 
 	_new_board(false)
 
@@ -107,6 +108,7 @@ func _new_board(animate := true) -> void:
 		_keep.position = keep_pos
 		_offcut.position = off_pos
 	_busy = false
+	Glow.set_state(_saw, Glow.ACTIVE if _dragging else Glow.IDLE)
 
 
 func _update_visuals() -> void:
@@ -122,6 +124,8 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_dragging = event.pressed
 		_last_x = event.position.x
+		if not _busy:
+			Glow.set_state(_saw, Glow.ACTIVE if _dragging else Glow.IDLE)
 		_stroke = 0.0
 	elif event is InputEventMouseMotion and _dragging and not _busy:
 		var dx: float = event.position.x - _last_x
@@ -156,6 +160,7 @@ func _process(delta: float) -> void:
 func _cut_done() -> void:
 	_busy = true
 	_dragging = false
+	Glow.set_state(_saw, Glow.OFF)
 	Sfx.play(&"cut_done")
 	var tw := create_tween().set_parallel()
 	tw.tween_property(_offcut, "position", _offcut.position + Vector2(80, 360), 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
