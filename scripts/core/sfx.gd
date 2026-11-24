@@ -25,6 +25,8 @@ const SOUNDS := {
 	&"whoosh": ["res://assets/sfx/whoosh.wav"],
 	&"area_done": ["res://assets/sfx/area_done.wav"],
 	&"building_done": ["res://assets/sfx/building_done.wav"],
+	&"sand": ["res://assets/sfx/sand.wav"],
+	&"paint": ["res://assets/sfx/paint.wav"],
 }
 
 ## Pitch spread for varied sounds. 1.12 = up to ~12% higher or lower.
