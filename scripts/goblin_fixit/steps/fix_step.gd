@@ -19,6 +19,8 @@ signal animate_goblin(anim: StringName)
 @export var art_scale := 2.0
 
 var area: WorkArea
+## This step's settings from the area's chain (a StepConfig subclass).
+var config: StepConfig
 ## Where step content goes (inside the pop-up panel), in this control's coords.
 ## The control itself covers the whole screen so drags can start anywhere.
 var panel_rect := Rect2(0, 0, 1000, 500)
@@ -81,7 +83,8 @@ func board_count() -> int:
 
 
 func nails_per_board() -> int:
-	return area.nails_per_board if area else 2
+	var c := config as NailStepConfig
+	return c.nails_per_board if c else 2
 
 
 ## Size of a cut board on screen.

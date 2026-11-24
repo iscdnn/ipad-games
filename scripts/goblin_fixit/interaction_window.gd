@@ -72,9 +72,13 @@ func panel_rect() -> Rect2:
 ## `source_point`: screen position boards/nails come from (box on the goblin's head).
 func run(area: WorkArea, art_scale := 2.0, source_point := Vector2.ZERO) -> void:
 	await _open()
-	for scene in area.steps:
-		var step := scene.instantiate() as FixStep
+	for config in area.steps:
+		if config == null or config.scene() == null:
+			push_warning("%s: empty step config, skipped" % area.name)
+			continue
+		var step := config.scene().instantiate() as FixStep
 		step.area = area
+		step.config = config
 		step.art_scale = art_scale
 		step.panel_rect = panel_rect()
 		step.source_point = source_point
