@@ -6,9 +6,11 @@ extends RubStepConfig
 
 @export var splashes := 3
 ## Splash ring radii: x = fully clean, y = 66%, z = 33%.
-@export var ring_radii := Vector3(10, 15, 20)
+@export var ring_radii := Vector3(20, 40, 70)
+## Chance per pixel that each ring cleans it at all (x = inner ... z = outer).
+@export var clean_chances := Vector3(1.0, 1.0, 0.33)
 ## Drip chance per pixel in each ring (x = inner ... z = outer).
-@export var drip_chances := Vector3(1.0, 0.3, 0.05)
+@export var drip_chances := Vector3(0.3, 0.15, 0.1)
 ## Drip length range (dirty pixels it can clean before drying up).
 @export var drip_length := Vector2i(10, 60)
 ## Chance per step down that a drip also shifts one pixel sideways.

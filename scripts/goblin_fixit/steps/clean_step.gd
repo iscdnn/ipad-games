@@ -110,7 +110,7 @@ func _splash(p: Vector2) -> void:
 	_splashes_left -= 1
 	var c := clean_config()
 	var third := 1.0 / c.clean_passes
-	target.splash(p, c.ring_radii, Vector3(1.0, 1.0 - third, third), c.drip_chances,
+	target.splash(p, c.ring_radii, Vector3(1.0, 1.0 - third, third), c.clean_chances, c.drip_chances,
 			c.drip_length, third, c.drip_shift)
 	Sfx.play(&"splash")
 	_splash_fx(p, c.ring_radii.z * target.scale.x)

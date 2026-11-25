@@ -96,10 +96,11 @@ func value_at(screen: Vector2) -> float:
 	return _mask.get_pixel(x, y).r
 
 
-## Water splash at a screen point. Ring i (radius radii[i] texels) is raised to
-## at least cleans[i]; each pixel in ring i starts a drip with drip_chances[i].
-func splash(screen: Vector2, radii: Vector3, cleans: Vector3, drip_chances: Vector3,
-		drip_len: Vector2i, drip_amount: float, drip_shift: float) -> void:
+## Water splash at a screen point. Each pixel in ring i (radius radii[i]
+## texels) is raised to at least cleans[i] with clean_chances[i], and starts
+## a drip with drip_chances[i].
+func splash(screen: Vector2, radii: Vector3, cleans: Vector3, clean_chances: Vector3,
+		drip_chances: Vector3, drip_len: Vector2i, drip_amount: float, drip_shift: float) -> void:
 	_drip_amount = drip_amount
 	_drip_shift = drip_shift
 	var c := _to_texel(screen)
@@ -114,7 +115,8 @@ func splash(screen: Vector2, radii: Vector3, cleans: Vector3, drip_chances: Vect
 			var ring := 0 if d <= radii.x else (1 if d <= radii.y else (2 if d <= radii.z else -1))
 			if ring < 0:
 				continue
-			_write(x, y, cleans[ring])
+			if randf() < clean_chances[ring]:
+				_write(x, y, cleans[ring])
 			if randf() < drip_chances[ring]:
 				_drips.append({x = x, y = y, left = randi_range(drip_len.x, drip_len.y)})
 

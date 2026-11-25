@@ -54,8 +54,9 @@ out inside `panel_rect`.
   `SandStepConfig` / `PaintStepConfig` (extend `RubStepConfig`: `surface`
   BOARDS or PANEL, `panel_texture`, `brush_radius`, `complete_at`, `passes`;
   paint adds `color`). `CleanStepConfig` (PANEL, big ~512px surfaces):
-  `splashes` 3, `ring_radii` (10/15/20 texels = full / 66% / 33%),
-  `drip_chances` per ring, `drip_length`, `drip_shift`, `clean_passes` 3. The window sets `step.config` before `begin()`.
+  `splashes` 3, `ring_radii` (20/40/70 texels = full / 66% / 33%),
+  `clean_chances` per ring (1 / 1 / 0.33), `drip_chances` per ring
+  (0.3 / 0.15 / 0.1), `drip_length`, `drip_shift`, `clean_passes` 3. The window sets `step.config` before `begin()`.
 - Highlight: marching ants traced around the cells, clockwise; each ant
   followed by an equal gap, ants alternate yellow/black.
 - Taps: area's cells grown by `tap_padding` (8 art px); overlap goes to the
