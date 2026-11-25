@@ -1,0 +1,58 @@
+[gd_scene format=4 uid="uid://bu73dy1ctupnd"]
+
+[ext_resource type="Script" uid="uid://bl5eclx36ese3" path="res://scripts/goblin_fixit/building.gd" id="1_lvapw"]
+[ext_resource type="TileSet" uid="uid://bx0wnd00usgwe" path="res://assets/tiles/sunnyside_world_tiles.tres" id="2_mtirl"]
+[ext_resource type="Script" uid="uid://pe3b8h3r0m26" path="res://scripts/goblin_fixit/work_area.gd" id="3_e72eu"]
+[ext_resource type="PackedScene" uid="uid://c78kx04te4qd7" path="res://scenes/goblin_fixit/steps/saw_step.tscn" id="4_1vkp0"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/place_step.tscn" id="5_07xxp"]
+[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/nail_step.tscn" id="6_u28jm"]
+
+[node name="Yellow_1" type="Node2D" unique_id=443075089]
+script = ExtResource("1_lvapw")
+
+[node name="Structure" type="TileMapLayer" parent="." unique_id=277280111]
+tile_map_data = PackedByteArray("AAAAAAIAAAAUAB8AAAABAAIAAAAVAB8AAAACAAIAAAAWAB8AAAACAAEAAAAWAB4AAAAAAAMAAAAUABsAAAAAAAQAAAAUABwAAAABAAQAAAAVABwAAAABAAMAAAAVABsAAAACAAMAAAAWABsAAAACAAQAAAAWABwAAAAAAAUAAAAPAB4AAAABAAUAAAAqABoAAAADAAQAAAARAB4AAAADAAUAAAARAB4AAAADAAMAAAAcABwAAAADAAIAAAAcABsAAAACAAUAAAAhAB0AAAA=")
+tile_set = ExtResource("2_mtirl")
+navigation_enabled = false
+
+[node name="Areas" type="Node2D" parent="." unique_id=2034020471]
+visible = false
+
+[node name="WorkArea1" type="Node2D" parent="Areas" unique_id=1690207309]
+script = ExtResource("3_e72eu")
+display_name = "Work area 1"
+steps = Array[PackedScene]([ExtResource("4_1vkp0"), ExtResource("5_07xxp"), ExtResource("6_u28jm")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea1" unique_id=656456650]
+tile_map_data = PackedByteArray("AAABAAEAAAAQACQAAAACAAEAAAAQACQAAAADAAEAAAAQACQAAAABAAAAAAAQACEAAAACAAAAAAAQACEAAAADAAAAAAAQACEAAAA=")
+tile_set = ExtResource("2_mtirl")
+
+[node name="WorkArea2" type="Node2D" parent="Areas" unique_id=1847080994]
+script = ExtResource("3_e72eu")
+display_name = "Work area 2"
+steps = Array[PackedScene]([ExtResource("4_1vkp0"), ExtResource("5_07xxp"), ExtResource("6_u28jm")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea2" unique_id=807396714]
+tile_map_data = PackedByteArray("AAABAAQAAAAkABoAAAA=")
+tile_set = ExtResource("2_mtirl")
+
+[node name="FixedOverlay" type="TileMapLayer" parent="Areas/WorkArea2/Fixed" unique_id=424633224]
+tile_map_data = PackedByteArray("AAABAAQAAAAeACcAAAA=")
+tile_set = ExtResource("2_mtirl")
+
+[node name="WorkArea3" type="Node2D" parent="Areas" unique_id=1827484696]
+script = ExtResource("3_e72eu")
+display_name = "Work area 3"
+steps = Array[PackedScene]([ExtResource("4_1vkp0"), ExtResource("5_07xxp"), ExtResource("6_u28jm")])
+
+[node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea3" unique_id=742104027]
+tile_map_data = PackedByteArray("AAACAAMAAAAQACUAAAADAAMAAAAQACUAAAA=")
+tile_set = ExtResource("2_mtirl")
+
+[node name="FixedOverlay" type="TileMapLayer" parent="Areas/WorkArea3/Fixed" unique_id=854824862]
+tile_map_data = PackedByteArray("AAACAAMAAAAOAAwAAAADAAMAAAAOAAwAAAA=")
+tile_set = ExtResource("2_mtirl")
+
+[node name="Overlays" type="TileMapLayer" parent="." unique_id=626335602]
+tile_map_data = PackedByteArray("AAACAAIAAAAhAB0AAAADAAIAAAAiAB0AAAABAAIAAAAgAB0AAAACAAEAAAAhABwAAAABAAEAAAAgABwAAAADAAEAAAAiABwAAAACAAAAAAAhABkAAAADAAAAAAAiABkAAAABAAAAAAAgABkAAAADAAMAAAAYAAEAAAABAAMAAAAOAAEAAAACAAMAAAAMAAEAAAA=")
+tile_set = ExtResource("2_mtirl")
