@@ -53,8 +53,8 @@ out inside `panel_rect`.
   `SawStepConfig`, `PlaceStepConfig`, `NailStepConfig` (`nails_per_board`),
   `SandStepConfig` / `PaintStepConfig` (extend `RubStepConfig`: `surface`
   BOARDS or PANEL, `panel_texture`, `brush_radius`, `complete_at`, `passes`;
-  paint adds `color`). `CleanStepConfig` (PANEL, big ~512px surfaces):
-  `splashes` 3, `ring_radii` (20/40/70 texels = full / 66% / 33%),
+  paint adds `color`). `CleanStepConfig` (PANEL, big ~256px surfaces, shown at 2x):
+  `splashes` 3, `ring_radii` (10/20/35 texels = full / 66% / 33%),
   `clean_chances` per ring (1 / 1 / 0.33), `drip_chances` per ring
   (0.3 / 0.15 / 0.1), `drip_length`, `drip_shift`, `clean_passes` 3. The window sets `step.config` before `begin()`.
 - Highlight: marching ants traced around the cells, clockwise; each ant
@@ -63,7 +63,7 @@ out inside `panel_rect`.
   nearest area; locked areas still block.
 - First building `shed.tscn`: 5x5, all 3 areas open from the start. Example
   chains: area 1 saw -> place -> nail -> sand -> paint (boards), area 2
-  clean (512px window) -> sand -> paint (PANEL), area 3 saw -> place -> nail. Layout (X = structure):
+  clean (256px window) -> sand -> paint (PANEL), area 3 saw -> place -> nail. Layout (X = structure):
   `X111X / X111X / XXXXX / XX33X / X2XXX`
 - Placeholders: hatched flat-colour squares/rects for everything (tileset:
   grey structure, brown todo, green fixed, blue spare; tool art same sizes as

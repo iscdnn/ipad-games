@@ -31,6 +31,8 @@ func begin() -> void:
 		config = CleanStepConfig.new()
 	super.begin()
 	_splashes_left = clean_config().splashes
+	for s in surfaces:
+		s.drip_speed = clean_config().drip_speed
 
 
 func rub_amount() -> float:
