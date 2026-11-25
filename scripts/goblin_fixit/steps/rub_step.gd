@@ -53,7 +53,7 @@ func begin() -> void:
 		var s := RubSurface.new()
 		s.setup(cfg.panel_texture)
 		var tex_size := s.texture.get_size()
-		var fit := minf(panel_rect.size.x * 0.7 / tex_size.x, panel_rect.size.y * 0.7 / tex_size.y)
+		var fit := minf(panel_rect.size.x * 0.85 / tex_size.x, panel_rect.size.y * 0.85 / tex_size.y)
 		# whole-number scale for pixel art; big surfaces (e.g. 512px) may shrink
 		s.scale = Vector2.ONE * (floorf(fit) if fit >= 1.0 else fit)
 		s.position = center.round()
