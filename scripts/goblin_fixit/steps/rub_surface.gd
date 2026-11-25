@@ -17,6 +17,13 @@ var _dirty := false
 var _opaque := PackedByteArray() # 1 where the texture is visible
 var _opaque_count := 0
 var _done_count := 0
+## Water drips running down (clean step): each {x, y, left}.
+var _drips: Array[Dictionary] = []
+var _drip_acc := 0.0
+var _drip_amount := 1.0 / 3.0
+var _drip_shift := 0.15
+## Drip speed in texels per second.
+var drip_speed := 120.0
 
 
 ## `region` crops the source (e.g. a cut board); empty = whole texture.
@@ -34,11 +41,11 @@ func setup(source: Texture2D, region := Rect2i()) -> void:
 	_mask_tex = ImageTexture.create_from_image(_mask)
 	_opaque.resize(w * h)
 	_opaque_count = 0
-	for y in h:
-		for x in w:
-			var o := img.get_pixel(x, y).a > 0.5
-			_opaque[y * w + x] = 1 if o else 0
-			_opaque_count += 1 if o else 0
+	var data := img.get_data() # RGBA8: alpha is every 4th byte
+	for i in w * h:
+		var o := data[i * 4 + 3] > 127
+		_opaque[i] = 1 if o else 0
+		_opaque_count += 1 if o else 0
 	_done_count = 0
 	mat = ShaderMaterial.new()
 	mat.shader = SHADER
@@ -73,13 +80,86 @@ func rub(from: Vector2, to: Vector2, radius: float, amount: float) -> void:
 				if d > 1.0 or _opaque[y * w + x] == 0:
 					continue
 				var old := _mask.get_pixel(x, y).r
-				if old >= 1.0:
-					continue
-				var v := minf(old + per * (1.0 - d * d * 0.6), 1.0)
-				_mask.set_pixel(x, y, Color(v, v, v))
-				if old < DONE_AT and v >= DONE_AT:
-					_done_count += 1
-				_dirty = true
+				if old < 1.0:
+					_write(x, y, old + per * (1.0 - d * d * 0.6))
+
+
+## Mask value (0 dirty .. 1 done) under a screen point; -1 if off the surface.
+func value_at(screen: Vector2) -> float:
+	var t := _to_texel(screen)
+	var x := floori(t.x)
+	var y := floori(t.y)
+	if x < 0 or y < 0 or x >= _mask.get_width() or y >= _mask.get_height():
+		return -1.0
+	if _opaque[y * _mask.get_width() + x] == 0:
+		return -1.0
+	return _mask.get_pixel(x, y).r
+
+
+## Water splash at a screen point. Ring i (radius radii[i] texels) is raised to
+## at least cleans[i]; each pixel in ring i starts a drip with drip_chances[i].
+func splash(screen: Vector2, radii: Vector3, cleans: Vector3, drip_chances: Vector3,
+		drip_len: Vector2i, drip_amount: float, drip_shift: float) -> void:
+	_drip_amount = drip_amount
+	_drip_shift = drip_shift
+	var c := _to_texel(screen)
+	var w := _mask.get_width()
+	var h := _mask.get_height()
+	var r := radii.z
+	for y in range(maxi(floori(c.y - r), 0), mini(ceili(c.y + r), h - 1) + 1):
+		for x in range(maxi(floori(c.x - r), 0), mini(ceili(c.x + r), w - 1) + 1):
+			if _opaque[y * w + x] == 0:
+				continue
+			var d := Vector2(x + 0.5, y + 0.5).distance_to(c)
+			var ring := 0 if d <= radii.x else (1 if d <= radii.y else (2 if d <= radii.z else -1))
+			if ring < 0:
+				continue
+			_write(x, y, cleans[ring])
+			if randf() < drip_chances[ring]:
+				_drips.append({x = x, y = y, left = randi_range(drip_len.x, drip_len.y)})
+
+
+func drips_running() -> bool:
+	return not _drips.is_empty()
+
+
+## Moves every drip one texel down (sometimes one sideways). A drip cleans
+## each pixel it reaches by _drip_amount; already-clean pixels are free.
+func _step_drips() -> void:
+	var w := _mask.get_width()
+	var h := _mask.get_height()
+	var i := _drips.size() - 1
+	while i >= 0:
+		var dr := _drips[i]
+		var x: int = dr.x
+		var y: int = dr.y + 1
+		if randf() < _drip_shift:
+			x += 1 if randf() < 0.5 else -1
+		if y >= h or x < 0 or x >= w or _opaque[y * w + x] == 0:
+			_drips.remove_at(i)
+			i -= 1
+			continue
+		dr.x = x
+		dr.y = y
+		var old := _mask.get_pixel(x, y).r
+		if old < 0.99:
+			_write(x, y, old + _drip_amount)
+			dr.left -= 1
+			if dr.left <= 0:
+				_drips.remove_at(i)
+		i -= 1
+
+
+## Sets a mask pixel (only ever raises it) and keeps the done count.
+func _write(x: int, y: int, v: float) -> void:
+	var old := _mask.get_pixel(x, y).r
+	v = minf(v, 1.0)
+	if v <= old:
+		return
+	_mask.set_pixel(x, y, Color(v, v, v))
+	if old < DONE_AT and v >= DONE_AT:
+		_done_count += 1
+	_dirty = true
 
 
 ## True if the screen point is on (or within `pad` px of) this surface.
@@ -116,7 +196,14 @@ func _to_texel(screen: Vector2) -> Vector2:
 	return local - offset
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if not _drips.is_empty():
+		_drip_acc += drip_speed * delta
+		while _drip_acc >= 1.0 and not _drips.is_empty():
+			_drip_acc -= 1.0
+			_step_drips()
+		if _drips.is_empty():
+			_drip_acc = 0.0
 	if _dirty:
 		_dirty = false
 		_mask_tex.update(_mask)

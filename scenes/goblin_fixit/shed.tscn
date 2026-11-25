@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/nail_step_config.gd" id="cfg_nail"]
 [ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/sand_step_config.gd" id="cfg_sand"]
 [ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/paint_step_config.gd" id="cfg_paint"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/clean_step_config.gd" id="cfg_clean"]
 
 [sub_resource type="Resource" id="saw"]
 script = ExtResource("cfg_saw")
@@ -27,6 +28,9 @@ surface = 0
 script = ExtResource("cfg_paint")
 surface = 0
 color = Color(0.35, 0.6, 0.9, 1)
+
+[sub_resource type="Resource" id="clean_window"]
+script = ExtResource("cfg_clean")
 
 [sub_resource type="Resource" id="sand_panel"]
 script = ExtResource("cfg_sand")
@@ -59,7 +63,7 @@ tile_set = ExtResource("2_eic36")
 [node name="WorkArea2" type="Node2D" parent="Areas" unique_id=1847080994]
 script = ExtResource("3_eic36")
 display_name = "Work area 2"
-steps = Array[StepConfig]([SubResource("sand_panel"), SubResource("paint_panel")])
+steps = Array[StepConfig]([SubResource("clean_window"), SubResource("sand_panel"), SubResource("paint_panel")])
 
 [node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea2" unique_id=807396714]
 tile_map_data = PackedByteArray("AAABAAQAAAAkABoAAAA=")
