@@ -54,7 +54,8 @@ func begin() -> void:
 		s.setup(cfg.panel_texture)
 		var tex_size := s.texture.get_size()
 		var fit := minf(panel_rect.size.x * 0.7 / tex_size.x, panel_rect.size.y * 0.7 / tex_size.y)
-		s.scale = Vector2.ONE * maxf(floorf(fit), art_scale)
+		# whole-number scale for pixel art; big surfaces (e.g. 512px) may shrink
+		s.scale = Vector2.ONE * (floorf(fit) if fit >= 1.0 else fit)
 		s.position = center.round()
 		_add_surface(s)
 	else:
@@ -109,24 +110,28 @@ func _gui_input(event: InputEvent) -> void:
 		else:
 			_tool_back()
 	elif event is InputEventMouseMotion and _rubbing:
-		var p: Vector2 = event.position
-		var cfg := rub_config()
-		var radius := cfg.brush_radius if cfg else 34.0
-		var touched := false
-		for s in surfaces:
-			if s.hits(p, radius) or s.hits(_last, radius):
-				s.rub(_last, p, radius, rub_amount())
-				touched = true
-		var d := _last.distance_to(p)
-		_tool.position = p
-		_last = p
-		if touched and d > 0.0:
-			_moved_t = 0.0
-			_particles.position = p
-			_since_sound += d
-			if _since_sound >= sound_every:
-				_since_sound = 0.0
-				Sfx.play(rub_sound, randf_range(0.9, 1.15), -4.0)
+		_rub_to(event.position)
+
+
+## Rubs from the last finger point to `p` and moves the tool there.
+func _rub_to(p: Vector2) -> void:
+	var cfg := rub_config()
+	var radius := cfg.brush_radius if cfg else 34.0
+	var touched := false
+	for s in surfaces:
+		if s.hits(p, radius) or s.hits(_last, radius):
+			s.rub(_last, p, radius, rub_amount())
+			touched = true
+	var d := _last.distance_to(p)
+	_tool.position = p
+	_last = p
+	if touched and d > 0.0:
+		_moved_t = 0.0
+		_particles.position = p
+		_since_sound += d
+		if _since_sound >= sound_every:
+			_since_sound = 0.0
+			Sfx.play(rub_sound, randf_range(0.9, 1.15), -4.0)
 
 
 func _tool_back() -> void:

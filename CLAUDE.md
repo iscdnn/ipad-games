@@ -53,14 +53,17 @@ out inside `panel_rect`.
   `SawStepConfig`, `PlaceStepConfig`, `NailStepConfig` (`nails_per_board`),
   `SandStepConfig` / `PaintStepConfig` (extend `RubStepConfig`: `surface`
   BOARDS or PANEL, `panel_texture`, `brush_radius`, `complete_at`, `passes`;
-  paint adds `color`). The window sets `step.config` before `begin()`.
+  paint adds `color`). `CleanStepConfig` (PANEL, big ~512px surfaces):
+  `splashes` 3, `ring_radii` (20/40/70 texels = full / 66% / 33%),
+  `clean_chances` per ring (1 / 1 / 0.33), `drip_chances` per ring
+  (0.3 / 0.15 / 0.1), `drip_length`, `drip_shift`, `clean_passes` 3. The window sets `step.config` before `begin()`.
 - Highlight: marching ants traced around the cells, clockwise; each ant
   followed by an equal gap, ants alternate yellow/black.
 - Taps: area's cells grown by `tap_padding` (8 art px); overlap goes to the
   nearest area; locked areas still block.
 - First building `shed.tscn`: 5x5, all 3 areas open from the start. Example
   chains: area 1 saw -> place -> nail -> sand -> paint (boards), area 2
-  sand -> paint (PANEL), area 3 saw -> place -> nail. Layout (X = structure):
+  clean (512px window) -> sand -> paint (PANEL), area 3 saw -> place -> nail. Layout (X = structure):
   `X111X / X111X / XXXXX / XX33X / X2XXX`
 - Placeholders: hatched flat-colour squares/rects for everything (tileset:
   grey structure, brown todo, green fixed, blue spare; tool art same sizes as
@@ -69,7 +72,9 @@ out inside `panel_rect`.
   rub-to-cover steps (`sand_step`, `paint_step`): `RubSurface` sprites keep a
   coverage mask (1 px per texture px, CPU-stamped soft brush) and the
   `rub_surface` shader blends before -> after by it; progress = covered pixels,
-  rest auto-fills at `complete_at`; `saw_step` (drag back
+  rest auto-fills at `complete_at`; `clean_step`: tap = water splash (rings +
+  drips run down, each drip/scrub pass adds 1/3, drips cross clean pixels
+  free), drag starting on a not-fully-dirty pixel = scrub with bubbles; `saw_step` (drag back
   and forth), `place_step` (drag boards into outlines), `nail_step` (drag nail
   from box, hold to charge hammer, release to swing).
 - New building = new scene with same layout; new interaction = new FixStep scene.
