@@ -62,9 +62,13 @@ out inside `panel_rect`.
 - Placeholders: hatched flat-colour squares/rects for everything (tileset:
   grey structure, brown todo, green fixed, blue spare; tool art same sizes as
   before: board 160x24, saw 64x40, hammer 64x24, nail 8x24, box 64x48).
-- Steps (`scripts/goblin_fixit/steps/`): `FixStep` base; `saw_step` (drag back
-  and forth; looping `saw_push`/`saw_pull` sounds follow the drag, direction
-  change restarts the attack, pitch follows speed, pause fades out), `place_step` (drag boards into outlines), `nail_step` (drag nail
+- Steps (`scripts/goblin_fixit/steps/`): `FixStep` base; `saw_step` (rhythm
+  sawing: board needs `board_cut` 100; slow drag moves the saw 1:1, grinds
+  `grind_per_px` and loops `saw_grind`; a quick swipe (`trigger_px` within
+  `trigger_window`) runs an auto stroke over `stroke_time` 0.3s with one-shot
+  `saw_push`/`saw_pull`, cutting `cut_per_stroke` 12.5 x fraction of the stroke
+  left from where the swipe began; one opposite swipe can queue during a
+  stroke; `cut_multiplier` scales all cuts for tougher boards), `place_step` (drag boards into outlines), `nail_step` (drag nail
   from box, hold to charge hammer, release to swing).
 - New building = new scene with same layout; new interaction = new FixStep scene.
 

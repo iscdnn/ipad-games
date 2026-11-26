@@ -12,7 +12,9 @@ extends Node
 ## SOUNDS below. List several files for one name to get random variants.
 
 const SOUNDS := {
-	# saw_push / saw_pull are looping (LoopSfx), fetched with Sfx.stream().
+	# saw_push / saw_pull: one-shot per saw stroke. saw_grind: looping (LoopSfx,
+	# fetched with Sfx.stream()) while the saw is dragged slowly.
+	&"saw_grind": ["res://assets/sfx/saw_grind.wav"],
 	&"saw_push": ["res://assets/sfx/fix/saw_fwd_1.wav", "res://assets/sfx/fix/saw_fwd_2.wav"],
 	&"saw_pull": ["res://assets/sfx/fix/saw_bk_1.wav", "res://assets/sfx/fix/saw_bk_2.wav"],
 	&"cut_done": ["res://assets/sfx/cut_done.wav"],

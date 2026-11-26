@@ -1,35 +1,51 @@
 extends FixStep
-## Saw boards to size: drag back and forth anywhere to move the saw.
+## Saw boards to size. Slow dragging moves the saw with the finger and only
+## grinds a little; a quick swipe triggers a full stroke that runs on its own
+## (stroke_time) with its SFX, so cutting has a rhythm to match.
 
 @export var saw_texture: Texture2D = preload("res://assets/sprites/saw.png")
 ## Point on saw_texture (pixels) that sits on the cut line: middle of the teeth.
 @export var saw_tooth_point := Vector2(23, 36)
-## Total finger travel (px) needed to cut through one board.
-@export var cut_distance := 1300.0
 ## How far the saw can slide either side of the cut line.
 @export var slide_range := 110.0
-## Drag speed (px/s) mapped to saw sound pitch: slow -> pitch_range.x, fast -> .y.
-@export var pitch_speed := Vector2(200.0, 1500.0)
-@export var pitch_range := Vector2(0.85, 1.25)
-## Finger must travel this far backwards before the sound switches direction
-## (ignores tiny jitter).
-@export var reverse_px := 4.0
+
+@export_group("Cutting")
+## Cut needed to get through one board.
+@export var board_cut := 100.0
+## Cut from one full stroke (end to end). A stroke started part-way across
+## cuts the remaining fraction of this.
+@export var cut_per_stroke := 12.5
+## Scales every cut amount (lower = tougher board). For harder boards later.
+@export var cut_multiplier := 1.0
+## Cut per px of slow back-and-forth dragging (grinding).
+@export var grind_per_px := 0.01
+
+@export_group("Strokes")
+## Time a stroke takes, so the stroke SFX plays properly.
+@export var stroke_time := 0.3
+## A stroke triggers when the finger travels this far one way...
+@export var trigger_px := 40.0
+## ...within this many seconds (i.e. a quick swipe).
+@export var trigger_window := 0.12
 
 var _boards_cut := 0
-var _progress := 0.0
+var _cut := 0.0
+var _progress := 0.0 # _cut / board_cut, for visuals
 var _slide := 0.0
 var _dragging := false
 var _last_x := 0.0
-var _dir := 0
 var _busy := true
 var _moved_t := 1.0
 var _t := 0.0
-var _rev := 0.0
-var _frame_moved := 0.0
-var _speed := 0.0
+var _stroking := false
+var _stroke_dir := 0
+var _queued_dir := 0
+## Recent finger samples (time, finger x, saw slide) for swipe detection.
+var _samples: Array[Vector3] = []
+## Saw slide where the detected swipe began.
+var _swipe_from := 0.0
 
-var _push_sfx: LoopSfx
-var _pull_sfx: LoopSfx
+var _grind: LoopSfx
 
 var _keep: Sprite2D
 var _offcut: Sprite2D
@@ -88,28 +104,19 @@ func begin() -> void:
 	_saw.scale = Vector2.ONE * art_scale
 	add_child(_saw)
 
-	_push_sfx = _make_loop(&"saw_push")
-	_pull_sfx = _make_loop(&"saw_pull")
+	_grind = LoopSfx.new()
+	_grind.stream = Sfx.stream(&"saw_grind")
+	_grind.idle_time = 0.1
+	add_child(_grind)
 
 	_new_board(false)
 
 
-func _make_loop(sound_name: StringName) -> LoopSfx:
-	var p := LoopSfx.new()
-	p.stream = Sfx.stream(sound_name)
-	add_child(p)
-	return p
-
-
-func _release_sfx() -> void:
-	_push_sfx.release()
-	_pull_sfx.release()
-	_dir = 0
-
-
 func _new_board(animate := true) -> void:
+	_cut = 0.0
 	_progress = 0.0
 	_slide = 0.0
+	_queued_dir = 0
 	var left := _board_center.x - board_texture.get_width() * art_scale / 2.0
 	var keep_pos := Vector2(left + board_keep_px * art_scale / 2.0, _board_center.y)
 	var off_w := (board_texture.get_width() - board_keep_px) * art_scale
@@ -148,65 +155,99 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		_dragging = event.pressed
 		_last_x = event.position.x
+		_samples.clear()
 		if not _dragging:
-			_release_sfx()
+			_grind.release()
 	elif event is InputEventMouseMotion and _dragging and not _busy:
-		var dx: float = event.position.x - _last_x
-		_last_x = event.position.x
-		var before := _slide
-		_slide = clampf(_slide + dx, -slide_range, slide_range)
-		var moved := absf(_slide - before)
-		if moved <= 0.0:
+		var x: float = event.position.x
+		var dx := x - _last_x
+		_last_x = x
+		_samples.append(Vector3(_t, x, _slide))
+		var swipe := _swipe_dir()
+		if _stroking:
+			# a quick swipe back during a stroke queues the next one
+			if swipe != 0 and swipe != _stroke_dir:
+				_queued_dir = swipe
 			return
-		var d := signi(int(signf(_slide - before)))
-		_frame_moved += moved
-		_saw_sound(d, moved)
+		if swipe != 0 and _room(swipe, _swipe_from) > 0.05:
+			# credit the stroke from where the swipe began (the first few px of
+			# a swipe already moved the saw as a slow drag)
+			_start_stroke(swipe, _swipe_from)
+			return
+		_grind_move(dx)
+
+
+## Slow drag: the saw follows the finger, grinds a little, plays the grind loop.
+func _grind_move(dx: float) -> void:
+	var before := _slide
+	_slide = clampf(_slide + dx, -slide_range, slide_range)
+	var moved := absf(_slide - before)
+	if moved <= 0.0:
+		return
+	_moved_t = 0.0
+	_grind.keep_alive(randf_range(0.97, 1.03))
+	_add_cut(moved * grind_per_px * cut_multiplier)
+	_update_visuals()
+	if _cut >= board_cut:
+		_cut_done()
+
+
+## +1 / -1 if the finger just swiped trigger_px one way within trigger_window.
+func _swipe_dir() -> int:
+	while _samples.size() > 1 and _t - _samples[0].x > trigger_window:
+		_samples.pop_front()
+	if _samples.size() < 2:
+		return 0
+	var d := _samples[-1].y - _samples[0].y
+	if absf(d) < trigger_px:
+		return 0
+	_swipe_from = _samples[0].z
+	var last := _samples[-1]
+	_samples.clear()
+	_samples.append(last)
+	return 1 if d > 0.0 else -1
+
+
+## Fraction of the full stroke between `from` and the end the saw heads to.
+func _room(dir: int, from: float) -> float:
+	return clampf((dir * slide_range - from) * dir / (2.0 * slide_range), 0.0, 1.0)
+
+
+## `credit_from`: slide position the cut is measured from (the swipe start).
+func _start_stroke(dir: int, credit_from: float) -> void:
+	_stroking = true
+	_stroke_dir = dir
+	_queued_dir = 0
+	_grind.release()
+	var cut := cut_per_stroke * cut_multiplier * _room(dir, credit_from)
+	Sfx.play(&"saw_push" if dir > 0 else &"saw_pull", 1.0, 0.0)
+	var from_slide := _slide
+	var to_slide := dir * slide_range
+	var from_cut := _cut
+	var tw := create_tween()
+	tw.tween_method(func(k: float) -> void:
+		_slide = lerpf(from_slide, to_slide, k)
+		_cut = minf(from_cut + cut * k, board_cut)
+		_progress = _cut / board_cut
 		_moved_t = 0.0
-		_progress = minf(_progress + moved / cut_distance, 1.0)
-		_update_visuals()
-		if _progress >= 1.0:
-			_cut_done()
+		_update_visuals(), 0.0, 1.0, stroke_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	await tw.finished
+	_stroking = false
+	if _cut >= board_cut:
+		_cut_done()
+	elif _queued_dir != 0 and _room(_queued_dir, _slide) > 0.05:
+		_start_stroke(_queued_dir, _slide)
 
 
-## Push and pull each have a looping player. Changing direction fades the
-## other one out and starts this one from its attack; pausing lets LoopSfx
-## fade it out on its own.
-func _saw_sound(d: int, moved: float) -> void:
-	if d != _dir and _dir != 0:
-		_rev += moved
-		if _rev < reverse_px:
-			_current_sfx().keep_alive(_pitch())
-			return
-	_rev = 0.0
-	var pitch := _pitch()
-	if d != _dir:
-		_dir = d
-		_other_sfx().release()
-		_current_sfx().start(pitch)
-	else:
-		_current_sfx().keep_alive(pitch)
-
-
-func _current_sfx() -> LoopSfx:
-	return _push_sfx if _dir > 0 else _pull_sfx
-
-
-func _other_sfx() -> LoopSfx:
-	return _pull_sfx if _dir > 0 else _push_sfx
-
-
-func _pitch() -> float:
-	var w := clampf(inverse_lerp(pitch_speed.x, pitch_speed.y, _speed), 0.0, 1.0)
-	return lerpf(pitch_range.x, pitch_range.y, w)
+func _add_cut(amount: float) -> void:
+	_cut = minf(_cut + amount, board_cut)
+	_progress = _cut / board_cut
 
 
 func _process(delta: float) -> void:
 	super._process(delta)
 	_t += delta
 	_moved_t += delta
-	if delta > 0.0:
-		_speed = lerpf(_speed, _frame_moved / delta, 1.0 - exp(-10.0 * delta))
-	_frame_moved = 0.0
 	if _dust:
 		_dust.emitting = _moved_t < 0.12 and not _busy
 
@@ -214,7 +255,8 @@ func _process(delta: float) -> void:
 func _cut_done() -> void:
 	_busy = true
 	_dragging = false
-	_release_sfx()
+	_queued_dir = 0
+	_grind.release()
 	Sfx.play(&"cut_done")
 	var tw := create_tween().set_parallel()
 	tw.tween_property(_offcut, "position", _offcut.position + Vector2(80, 360), 0.7).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
