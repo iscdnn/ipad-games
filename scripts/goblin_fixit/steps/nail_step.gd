@@ -11,7 +11,7 @@ extends FixStep
 ## Hammer-head centre, measured from the pivot, in texture pixels.
 @export var hammer_head_offset := Vector2(-56, 0)
 ## Seconds of holding to reach full charge.
-@export var charge_time := 0.7
+@export var charge_time := 1
 ## How far one hit drives the nail: from a quick tap to a full charge.
 @export var min_drive := 0.34
 @export var max_drive := 1.0
@@ -174,8 +174,8 @@ func _start_charge(i: int) -> void:
 	_hammer.modulate.a = 1.0
 	_place_hammer(i)
 	_hammer.rotation = REST
-	_charge_player = Sfx.play(&"charge", 1.0, -6.0, false)
-
+	_charge_player = Sfx.play(&"charge", 1.0, -6.0, false)	
+	play_goblin("hammer_windup")
 
 func _place_hammer(i: int) -> void:
 	var head := _nail_top(_spots[i])
@@ -184,6 +184,7 @@ func _place_hammer(i: int) -> void:
 
 
 func _swing() -> void:
+	play_goblin("hammer_strike")
 	var i := _charging
 	_charging = -1
 	_swinging = true
