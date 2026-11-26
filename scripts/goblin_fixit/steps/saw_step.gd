@@ -158,10 +158,15 @@ func _gui_input(event: InputEvent) -> void:
 		_samples.clear()
 		if not _dragging:
 			_grind.release()
-	elif event is InputEventMouseMotion and _dragging and not _busy:
+	elif event is InputEventMouseMotion and _dragging:
 		var x: float = event.position.x
 		var dx := x - _last_x
 		_last_x = x
+		if _busy:
+			# keep tracking the finger between boards so the drag carries on
+			# without a jump; no swipe history across boards
+			_samples.clear()
+			return
 		_samples.append(Vector3(_t, x, _slide))
 		var swipe := _swipe_dir()
 		if _stroking:
@@ -254,7 +259,6 @@ func _process(delta: float) -> void:
 
 func _cut_done() -> void:
 	_busy = true
-	_dragging = false
 	_queued_dir = 0
 	_grind.release()
 	Sfx.play(&"cut_done")
