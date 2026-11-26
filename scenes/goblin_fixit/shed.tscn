@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bl5eclx36ese3" path="res://scripts/goblin_fixit/building.gd" id="1_g58xh"]
 [ext_resource type="TileSet" uid="uid://bx0wnd00usgwe" path="res://assets/tiles/sunnyside_world_tiles.tres" id="2_eic36"]
 [ext_resource type="Script" uid="uid://pe3b8h3r0m26" path="res://scripts/goblin_fixit/work_area.gd" id="3_eic36"]
-[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/saw_step.tscn" id="4_r5d3q"]
+[ext_resource type="PackedScene" uid="uid://c78kx04te4qd7" path="res://scenes/goblin_fixit/steps/saw_step.tscn" id="4_r5d3q"]
 [ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/place_step.tscn" id="5_qpc81"]
 [ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/nail_step.tscn" id="6_kjino"]
 

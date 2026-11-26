@@ -13,8 +13,8 @@ extends Node
 
 const SOUNDS := {
 	# saw_push / saw_pull are looping (LoopSfx), fetched with Sfx.stream().
-	&"saw_push": ["res://assets/sfx/saw_push.wav"],
-	&"saw_pull": ["res://assets/sfx/saw_pull.wav"],
+	&"saw_push": ["res://assets/sfx/fix/saw_fwd_1.wav", "res://assets/sfx/fix/saw_fwd_2.wav"],
+	&"saw_pull": ["res://assets/sfx/fix/saw_bk_1.wav", "res://assets/sfx/fix/saw_bk_2.wav"],
 	&"cut_done": ["res://assets/sfx/cut_done.wav"],
 	&"pickup": ["res://assets/sfx/pickup.wav"],
 	&"drop": ["res://assets/sfx/drop.wav"],
