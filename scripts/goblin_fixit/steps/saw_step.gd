@@ -4,10 +4,16 @@ extends FixStep
 ## (stroke_time) with its SFX, so cutting has a rhythm to match.
 
 @export var saw_texture: Texture2D = preload("res://assets/sprites/saw.png")
-## Point on saw_texture (pixels) that sits on the cut line: middle of the teeth.
-@export var saw_tooth_point := Vector2(23, 36)
-## How far the saw can slide either side of the cut line.
-@export var slide_range := 110.0
+## Blade on saw_texture (texture px) that touches the cut. A push stroke runs
+## the contact from blade_tip_inset in from the right edge (tip) to
+## blade_handle_px in from the left (by the handle); a pull goes back.
+@export var blade_handle_px := 60.0
+@export var blade_tip_inset := 10.0
+## Teeth line height on saw_texture (texture px).
+@export var saw_teeth_y := 44.0
+
+## Saw slide either side of centre (screen px), from the blade range above.
+var slide_range := 110.0
 
 @export_group("Cutting")
 ## Cut needed to get through one board.
@@ -100,7 +106,10 @@ func begin() -> void:
 	_saw = Sprite2D.new()
 	_saw.texture = saw_texture
 	_saw.centered = false
-	_saw.offset = -saw_tooth_point
+	# contact point at the middle of the blade; sliding moves it toward tip/handle
+	var tip_x := saw_texture.get_width() - blade_tip_inset
+	_saw.offset = -Vector2((blade_handle_px + tip_x) / 2.0, saw_teeth_y)
+	slide_range = (tip_x - blade_handle_px) / 2.0 * art_scale
 	_saw.scale = Vector2.ONE * art_scale
 	add_child(_saw)
 
