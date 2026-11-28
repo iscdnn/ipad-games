@@ -15,6 +15,8 @@ signal animate_goblin(anim: StringName)
 @export var board_texture: Texture2D = preload("res://assets/sprites/board.png")
 ## Pixel width of board_texture that remains after the cut (the rest is offcut).
 @export var board_keep_px := 120
+## False = no pop-up panel: the step lays itself out around the goblin.
+@export var uses_panel := true
 ## Screen pixels per art pixel; the window sets this from the minigame zoom.
 @export var art_scale := 2.0
 
@@ -26,6 +28,8 @@ var config: StepConfig
 var panel_rect := Rect2(0, 0, 1000, 500)
 ## Screen point boards/nails are taken from (box on the goblin's head).
 var source_point := Vector2.ZERO
+## Screen point of the goblin's feet.
+var goblin_feet := Vector2.ZERO
 var under: Node2D
 var top: Node2D
 var _finished := false

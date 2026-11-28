@@ -13,6 +13,11 @@ signal step_started(step: FixStep)
 @export var margin := 20.0
 @export var title_height := 90.0
 
+## Called before each step begins: await prepare_step.call(area, config, step)
+## must return {source = Vector2, feet = Vector2} (screen points). The site
+## walks the goblin to the step's spot and frames the camera here.
+var prepare_step: Callable
+var _panel_shown := false
 var _blocker: Control
 var _panel: Panel
 var _title: Label
@@ -82,13 +87,18 @@ func run(area: WorkArea, art_scale := 2.0, source_point := Vector2.ZERO) -> void
 		step.art_scale = art_scale
 		step.panel_rect = panel_rect()
 		step.source_point = source_point
+		if prepare_step.is_valid():
+			var ctx: Dictionary = await prepare_step.call(area, config, step)
+			step.source_point = ctx.get("source", source_point)
+			step.goblin_feet = ctx.get("feet", Vector2.ZERO)
+		await _show_panel(step.uses_panel)
 		step.position = Vector2.ZERO
 		step.size = get_viewport().get_visible_rect().size
 		step.modulate.a = 0.0
 		_holder.add_child(step)
 		step.begin()
 		step_started.emit(step)
-		_title.text = step.title
+		_title.text = step.title if step.uses_panel else ""
 		create_tween().tween_property(step, "modulate:a", 1.0, 0.2)
 		await step.completed
 		Sfx.play(&"area_done", 1.4, -8.0)
@@ -103,6 +113,23 @@ func _open() -> void:
 	_layout()
 	_title.text = ""
 	visible = true
+	_panel_shown = false
+	_panel.position.x = get_viewport().get_visible_rect().size.x
+
+
+## Slides the panel in or out (steps with uses_panel = false have none).
+func _show_panel(show: bool) -> void:
+	if show == _panel_shown:
+		return
+	_panel_shown = show
+	if not show:
+		_title.text = ""
+		Sfx.play(&"whoosh", 1.2)
+		var out := create_tween()
+		out.tween_property(_panel, "position:x", get_viewport().get_visible_rect().size.x, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		await out.finished
+		return
+	_layout()
 	var vp := get_viewport().get_visible_rect().size
 	var x := _panel.position.x
 	_panel.position.x = vp.x
@@ -113,6 +140,10 @@ func _open() -> void:
 
 
 func _close() -> void:
+	if not _panel_shown:
+		visible = false
+		return
+	_panel_shown = false
 	Sfx.play(&"whoosh", 1.2)
 	var vp := get_viewport().get_visible_rect().size
 	var tw := create_tween()

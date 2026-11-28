@@ -55,6 +55,12 @@ out inside `panel_rect`.
   settings.
 - Step configs (`scripts/goblin_fixit/steps/configs/`): one Resource subclass
   per step type, knows its scene (`scene()`) and holds that step's options.
+  Every config has `goblin_spot` (Marker2D path relative to the WorkArea;
+  fallback: area's `GoblinSpot` child, else left of the area). Before each
+  step the site walks the goblin there and frames the close-up
+  (`InteractionWindow.prepare_step`); steps get `source_point` + `goblin_feet`
+  (screen). FixStep `uses_panel` false = no pop-up panel (saw), goblin at
+  `no_panel_goblin_x` of the screen.
   `SawStepConfig`, `PlaceStepConfig`, `NailStepConfig` (`nails_per_board`),
   `SandStepConfig` / `PaintStepConfig` (extend `RubStepConfig`: `surface`
   BOARDS or PANEL, `panel_texture`, `brush_radius`, `complete_at`, `passes`;
@@ -74,7 +80,15 @@ out inside `panel_rect`.
   rub-to-cover steps (`sand_step`, `paint_step`): `RubSurface` sprites keep a
   coverage mask (1 px per texture px, CPU-stamped soft brush) and the
   `rub_surface` shader blends before -> after by it; progress = covered pixels,
-  rest auto-fills at `complete_at`; `saw_step` (rhythm
+  rest auto-fills at `complete_at`; `saw_step` (no panel: goblin opens a
+  `Portal` (`portal.gd`, `assets/anim/portal_frames.tres`: inner swirl + ring
+  split into left/right halves so timber passes through: back = swirl + right
+  half, `front` = left half), `timber.png` (1024x64) slides out by a random
+  `board_length` 230-330 texture px past the cut line, the board is the
+  timber's end region (seamless) drawn with the timber in front of the saw;
+  cut board drops right-end first, bounces off the screen bottom, spins to the
+  goblin's feet; leftover timber slides back, portal scales out; props at
+  `prop_scale` 1; rhythm
   sawing: board needs `board_cut` 100; slow drag moves the saw 1:1, grinds
   `grind_per_px` and loops `saw_grind`; a quick swipe (`trigger_px` within
   `trigger_window`) runs an auto stroke over `stroke_time` 0.3s with one-shot

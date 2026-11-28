@@ -1,0 +1,135 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/portal_in.png" id="1_in"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portal_out.png" id="2_out"]
+
+[sub_resource type="AtlasTexture" id="inner_0"]
+atlas = ExtResource("1_in")
+region = Rect2(0, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_1"]
+atlas = ExtResource("1_in")
+region = Rect2(256, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_2"]
+atlas = ExtResource("1_in")
+region = Rect2(512, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_3"]
+atlas = ExtResource("1_in")
+region = Rect2(768, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_4"]
+atlas = ExtResource("1_in")
+region = Rect2(1024, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_5"]
+atlas = ExtResource("1_in")
+region = Rect2(1280, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_6"]
+atlas = ExtResource("1_in")
+region = Rect2(1536, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="inner_7"]
+atlas = ExtResource("1_in")
+region = Rect2(1792, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_0"]
+atlas = ExtResource("2_out")
+region = Rect2(0, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_1"]
+atlas = ExtResource("2_out")
+region = Rect2(256, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_2"]
+atlas = ExtResource("2_out")
+region = Rect2(512, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_3"]
+atlas = ExtResource("2_out")
+region = Rect2(768, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_4"]
+atlas = ExtResource("2_out")
+region = Rect2(1024, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_5"]
+atlas = ExtResource("2_out")
+region = Rect2(1280, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_6"]
+atlas = ExtResource("2_out")
+region = Rect2(1536, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_7"]
+atlas = ExtResource("2_out")
+region = Rect2(1792, 0, 256, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_0"]
+atlas = ExtResource("2_out")
+region = Rect2(0, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_1"]
+atlas = ExtResource("2_out")
+region = Rect2(256, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_2"]
+atlas = ExtResource("2_out")
+region = Rect2(512, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_3"]
+atlas = ExtResource("2_out")
+region = Rect2(768, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_4"]
+atlas = ExtResource("2_out")
+region = Rect2(1024, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_5"]
+atlas = ExtResource("2_out")
+region = Rect2(1280, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_6"]
+atlas = ExtResource("2_out")
+region = Rect2(1536, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_left_7"]
+atlas = ExtResource("2_out")
+region = Rect2(1792, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_0"]
+atlas = ExtResource("2_out")
+region = Rect2(128, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_1"]
+atlas = ExtResource("2_out")
+region = Rect2(384, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_2"]
+atlas = ExtResource("2_out")
+region = Rect2(640, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_3"]
+atlas = ExtResource("2_out")
+region = Rect2(896, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_4"]
+atlas = ExtResource("2_out")
+region = Rect2(1152, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_5"]
+atlas = ExtResource("2_out")
+region = Rect2(1408, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_6"]
+atlas = ExtResource("2_out")
+region = Rect2(1664, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="ring_right_7"]
+atlas = ExtResource("2_out")
+region = Rect2(1920, 0, 128, 256)
+
+[resource]
+animations = [{"frames": [{"duration": 1.0, "texture": SubResource("inner_0")}, {"duration": 1.0, "texture": SubResource("inner_1")}, {"duration": 1.0, "texture": SubResource("inner_2")}, {"duration": 1.0, "texture": SubResource("inner_3")}, {"duration": 1.0, "texture": SubResource("inner_4")}, {"duration": 1.0, "texture": SubResource("inner_5")}, {"duration": 1.0, "texture": SubResource("inner_6")}, {"duration": 1.0, "texture": SubResource("inner_7")}], "loop": true, "name": &"inner", "speed": 12.0}, {"frames": [{"duration": 1.0, "texture": SubResource("ring_0")}, {"duration": 1.0, "texture": SubResource("ring_1")}, {"duration": 1.0, "texture": SubResource("ring_2")}, {"duration": 1.0, "texture": SubResource("ring_3")}, {"duration": 1.0, "texture": SubResource("ring_4")}, {"duration": 1.0, "texture": SubResource("ring_5")}, {"duration": 1.0, "texture": SubResource("ring_6")}, {"duration": 1.0, "texture": SubResource("ring_7")}], "loop": true, "name": &"ring", "speed": 12.0}, {"frames": [{"duration": 1.0, "texture": SubResource("ring_left_0")}, {"duration": 1.0, "texture": SubResource("ring_left_1")}, {"duration": 1.0, "texture": SubResource("ring_left_2")}, {"duration": 1.0, "texture": SubResource("ring_left_3")}, {"duration": 1.0, "texture": SubResource("ring_left_4")}, {"duration": 1.0, "texture": SubResource("ring_left_5")}, {"duration": 1.0, "texture": SubResource("ring_left_6")}, {"duration": 1.0, "texture": SubResource("ring_left_7")}], "loop": true, "name": &"ring_left", "speed": 12.0}, {"frames": [{"duration": 1.0, "texture": SubResource("ring_right_0")}, {"duration": 1.0, "texture": SubResource("ring_right_1")}, {"duration": 1.0, "texture": SubResource("ring_right_2")}, {"duration": 1.0, "texture": SubResource("ring_right_3")}, {"duration": 1.0, "texture": SubResource("ring_right_4")}, {"duration": 1.0, "texture": SubResource("ring_right_5")}, {"duration": 1.0, "texture": SubResource("ring_right_6")}, {"duration": 1.0, "texture": SubResource("ring_right_7")}], "loop": true, "name": &"ring_right", "speed": 12.0}]

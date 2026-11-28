@@ -8,7 +8,7 @@ extends Node2D
 ##   hammer - loops during the nail step
 ##   carry  - loops during place/nail steps (box on head = board/nail source)
 ##   jump   - one-shot cheer (loop off)
-## walk_to() is unused for now (goblin stands at the screen edge).
+## walk_to_point() moves the goblin to each step's spot.
 
 @export var speed := 120.0
 ## Centre of the box on the goblin's head in the "carry" animation, in art px
@@ -45,6 +45,25 @@ func walk_to(x: float) -> void:
 	tw.tween_property(self, "position:x", x, dist / speed)
 	await tw.finished
 	sprite.play(&"idle")
+
+
+func walk_to_point(p: Vector2) -> void:
+	var dist := position.distance_to(p)
+	if dist < 1.0:
+		return
+	face(p.x)
+	sprite.play(&"walk")
+	var tw := create_tween()
+	tw.tween_property(self, "position", p, dist / speed)
+	await tw.finished
+	sprite.play(&"idle")
+
+
+## Feet point relative to the goblin's origin (bottom of the sprite frame).
+func feet_offset() -> Vector2:
+	var tex := sprite.sprite_frames.get_frame_texture(sprite.animation, 0)
+	var h := tex.get_height() if tex else 0
+	return sprite.position + sprite.offset + Vector2(0, h / 2.0)
 
 
 func face(x: float) -> void:
