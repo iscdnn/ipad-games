@@ -21,8 +21,11 @@ extends FixStep
 @export var saw_teeth_y := 44.0
 
 @export_group("Layout")
-## Portal centre relative to the goblin's feet (screen px).
-@export var portal_offset := Vector2(190, -120)
+## Gap between the goblin's right edge and the portal's left edge (screen px).
+## The portal sits level with the goblin's middle.
+@export var portal_gap := 10.0
+## Portal half-width (portal texture px) used to place it beside the goblin.
+@export var portal_half_width := 100.0
 ## Where the timber is hidden inside the portal, from its centre (screen px,
 ## at prop_scale 1): the timber shows from here rightwards.
 @export var portal_clip := -95.0
@@ -105,17 +108,20 @@ func begin() -> void:
 	super.begin()
 	title = "Saw the boards!"
 	var ps := prop_scale
-	var portal_pos := (goblin_feet + portal_offset).round()
+	var portal_pos := Vector2(goblin_rect.end.x + portal_gap + portal_half_width * ps,
+			goblin_rect.get_center().y).round()
 	_cut_x = portal_pos.x + cut_offset
 	_clip_x = portal_pos.x + portal_clip * ps
 	_timber_top = portal_pos.y - timber_texture.get_height() * ps / 2.0
 	_timber_len = timber_texture.get_width()
 	_timber_end = _clip_x
 
-	# draw order: portal back, saw, timber, board, kerf, portal ring front, dust
+	# draw order: portal back, timber, saw, board, kerf, portal ring front, dust
 	_portal = Portal.new()
 	_portal.place(portal_pos)
 	add_child(_portal)
+	_timber = _wood_sprite()
+	add_child(_timber)
 
 	_saw = Sprite2D.new()
 	_saw.texture = saw_texture
@@ -128,8 +134,6 @@ func begin() -> void:
 	_saw.modulate.a = 0.0
 	add_child(_saw)
 
-	_timber = _wood_sprite()
-	add_child(_timber)
 	_board = _wood_sprite()
 	add_child(_board)
 

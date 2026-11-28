@@ -74,7 +74,10 @@ func _closeup_position(with_panel := true) -> Vector2:
 	var vp := get_viewport_rect().size
 	var goblin_x := vp.x * (1.0 - window.panel_width) / 2.0 if with_panel else vp.x * no_panel_goblin_x
 	var shift := (vp.x / 2.0 - goblin_x) / closeup_zoom
-	return goblin.position + closeup_focus + Vector2(shift, 0)
+	if with_panel:
+		return goblin.position + closeup_focus + Vector2(shift, 0)
+	# no panel: goblin's visible sprite centred vertically
+	return goblin.position + Vector2(0, goblin.visual_rect().get_center().y) + Vector2(shift, 0)
 
 
 ## Where the goblin stands for a step (world position).
@@ -103,9 +106,12 @@ func _prepare_step(area: WorkArea, config: StepConfig, step: FixStep) -> Diction
 	await _move_camera(closeup_zoom, _closeup_position(step.uses_panel))
 	await get_tree().process_frame
 	var xf := get_viewport().get_canvas_transform()
+	var vr := goblin.visual_rect()
+	var tl := xf * goblin.to_global(vr.position)
 	return {
 		source = xf * goblin.to_global(goblin.carry_box_offset),
 		feet = xf * goblin.to_global(goblin.feet_offset()),
+		rect = Rect2(tl, xf * goblin.to_global(vr.end) - tl),
 	}
 
 

@@ -85,7 +85,10 @@ out inside `panel_rect`.
   split into left/right halves so timber passes through: back = swirl + right
   half, `front` = left half), `timber.png` (1024x64) slides out by a random
   `board_length` 230-330 texture px past the cut line, the board is the
-  timber's end region (seamless) drawn with the timber in front of the saw;
+  timber's end region (seamless); draw order timber, saw, board (board hides
+  the blade); portal sits `portal_gap` right of the goblin, level with its
+  middle (steps get `goblin_rect`; no-panel close-up centres the goblin's
+  visible sprite vertically);
   cut board drops right-end first, bounces off the screen bottom, spins to the
   goblin's feet; leftover timber slides back, portal scales out; props at
   `prop_scale` 1; rhythm

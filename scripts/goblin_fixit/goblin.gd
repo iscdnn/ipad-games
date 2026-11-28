@@ -59,6 +59,17 @@ func walk_to_point(p: Vector2) -> void:
 	sprite.play(&"idle")
 
 
+## Bounds of the visible pixels of the current frame, relative to the
+## goblin's origin (art px).
+func visual_rect() -> Rect2:
+	var tex := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	if tex == null:
+		return Rect2()
+	var used := tex.get_image().get_used_rect()
+	var top_left := sprite.position + sprite.offset - tex.get_size() / 2.0
+	return Rect2(top_left + Vector2(used.position), Vector2(used.size))
+
+
 ## Feet point relative to the goblin's origin (bottom of the sprite frame).
 func feet_offset() -> Vector2:
 	var tex := sprite.sprite_frames.get_frame_texture(sprite.animation, 0)

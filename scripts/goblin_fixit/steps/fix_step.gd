@@ -30,6 +30,8 @@ var panel_rect := Rect2(0, 0, 1000, 500)
 var source_point := Vector2.ZERO
 ## Screen point of the goblin's feet.
 var goblin_feet := Vector2.ZERO
+## Goblin's visible sprite on screen.
+var goblin_rect := Rect2()
 var under: Node2D
 var top: Node2D
 var _finished := false

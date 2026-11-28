@@ -15,7 +15,8 @@ signal step_started(step: FixStep)
 
 ## Called before each step begins: await prepare_step.call(area, config, step)
 ## must return {source = Vector2, feet = Vector2} (screen points). The site
-## walks the goblin to the step's spot and frames the camera here.
+## walks the goblin to the step's spot and frames the camera here. Optional
+## `rect` = goblin's visible sprite on screen.
 var prepare_step: Callable
 var _panel_shown := false
 var _blocker: Control
@@ -91,6 +92,7 @@ func run(area: WorkArea, art_scale := 2.0, source_point := Vector2.ZERO) -> void
 			var ctx: Dictionary = await prepare_step.call(area, config, step)
 			step.source_point = ctx.get("source", source_point)
 			step.goblin_feet = ctx.get("feet", Vector2.ZERO)
+			step.goblin_rect = ctx.get("rect", Rect2(step.goblin_feet, Vector2.ZERO))
 		await _show_panel(step.uses_panel)
 		step.position = Vector2.ZERO
 		step.size = get_viewport().get_visible_rect().size
