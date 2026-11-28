@@ -12,7 +12,11 @@ extends Node
 ## SOUNDS below. List several files for one name to get random variants.
 
 const SOUNDS := {
-	&"saw": ["res://assets/sfx/saw_1.wav", "res://assets/sfx/saw_2.wav"],
+	# saw_push / saw_pull: one-shot per saw stroke. saw_grind: looping (LoopSfx,
+	# fetched with Sfx.stream()) while the saw is dragged slowly.
+	&"saw_grind": ["res://assets/sfx/saw_grind.wav"],
+	&"saw_push": ["res://assets/sfx/fix/saw_fwd_1.wav", "res://assets/sfx/fix/saw_fwd_2.wav"],
+	&"saw_pull": ["res://assets/sfx/fix/saw_bk_1.wav", "res://assets/sfx/fix/saw_bk_2.wav"],
 	&"cut_done": ["res://assets/sfx/cut_done.wav"],
 	&"pickup": ["res://assets/sfx/pickup.wav"],
 	&"drop": ["res://assets/sfx/drop.wav"],
@@ -25,6 +29,8 @@ const SOUNDS := {
 	&"whoosh": ["res://assets/sfx/whoosh.wav"],
 	&"area_done": ["res://assets/sfx/area_done.wav"],
 	&"building_done": ["res://assets/sfx/building_done.wav"],
+	&"sand": ["res://assets/sfx/sand.wav"],
+	&"paint": ["res://assets/sfx/paint.wav"],
 }
 
 ## Pitch spread for varied sounds. 1.12 = up to ~12% higher or lower.
@@ -61,6 +67,14 @@ func play(sound_name: StringName, pitch := 1.0, volume_db := 0.0, vary := true) 
 	p.volume_db = volume_db
 	p.play()
 	return p
+
+
+## Raw stream of a sound's first file, for dedicated players such as LoopSfx.
+func stream(sound_name: StringName) -> AudioStream:
+	if not SOUNDS.has(sound_name):
+		push_warning("Sfx: unknown sound '%s'" % sound_name)
+		return null
+	return load(SOUNDS[sound_name][0])
 
 
 func _make(paths: Array, random_pitch: float) -> AudioStreamRandomizer:

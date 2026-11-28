@@ -15,15 +15,23 @@ signal animate_goblin(anim: StringName)
 @export var board_texture: Texture2D = preload("res://assets/sprites/board.png")
 ## Pixel width of board_texture that remains after the cut (the rest is offcut).
 @export var board_keep_px := 120
+## False = no pop-up panel: the step lays itself out around the goblin.
+@export var uses_panel := true
 ## Screen pixels per art pixel; the window sets this from the minigame zoom.
 @export var art_scale := 2.0
 
 var area: WorkArea
+## This step's settings from the area's chain (a StepConfig subclass).
+var config: StepConfig
 ## Where step content goes (inside the pop-up panel), in this control's coords.
 ## The control itself covers the whole screen so drags can start anywhere.
 var panel_rect := Rect2(0, 0, 1000, 500)
 ## Screen point boards/nails are taken from (box on the goblin's head).
 var source_point := Vector2.ZERO
+## Screen point of the goblin's feet.
+var goblin_feet := Vector2.ZERO
+## Goblin's visible sprite on screen.
+var goblin_rect := Rect2()
 var under: Node2D
 var top: Node2D
 var _finished := false
@@ -81,7 +89,8 @@ func board_count() -> int:
 
 
 func nails_per_board() -> int:
-	return area.nails_per_board if area else 2
+	var c := config as NailStepConfig
+	return c.nails_per_board if c else 2
 
 
 ## Size of a cut board on screen.

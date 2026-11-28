@@ -17,10 +17,17 @@ extends Node2D
 @export var closeup_zoom := 8.0
 ## Goblin point (art px, relative to the goblin) kept centred in the close-up.
 @export var closeup_focus := Vector2(0, -6)
+## Steps without a panel: goblin's screen x as a fraction of the width
+## (the step's props sit to its right).
+@export var no_panel_goblin_x := 0.2
+## Default goblin spot when an area/step has no marker: this far left of the
+## area's left edge (art px), level with its middle.
+@export var default_spot_gap := 10.0
 @export var camera_move_time := 0.5
 
 var _busy := false
 var _closeup := false
+var _closeup_panel := true
 
 @onready var camera: Camera2D = $Camera
 @onready var building: Building = $Building
@@ -35,6 +42,7 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_layout)
 	again_button.pressed.connect(_on_again)
 	window.step_started.connect(_on_step_started)
+	window.prepare_step = _prepare_step
 	done_label.visible = false
 	again_button.visible = false
 	# building centred on world origin; camera looks at the origin
@@ -47,25 +55,64 @@ func _ready() -> void:
 func _layout() -> void:
 	var view := get_viewport_rect().size / pixel_zoom
 	# goblin stands at the left edge for now (no walking yet)
-	goblin.position = Vector2(-view.x / 2.0 + goblin_margin, 0.0).round()
+	if not _busy:
+		goblin.position = Vector2(-view.x / 2.0 + goblin_margin, 0.0).round()
 	var vp := get_viewport_rect().size
 	confetti.position = Vector2(vp.x / 2.0, -20.0)
 	confetti.emission_rect_extents = Vector2(vp.x / 2.0, 10.0)
 	if _closeup:
 		camera.zoom = Vector2.ONE * closeup_zoom
-		camera.position = _closeup_position()
+		camera.position = _closeup_position(_closeup_panel)
 	else:
 		camera.zoom = Vector2.ONE * pixel_zoom
 		camera.position = Vector2.ZERO
 
 
-## Camera position that puts the goblin in the middle of the screen area left
-## of the pop-up panel.
-func _closeup_position() -> Vector2:
+## Camera position for the goblin close-up. With the pop-up panel, the goblin
+## sits in the middle of the space left of it; without, at no_panel_goblin_x.
+func _closeup_position(with_panel := true) -> Vector2:
 	var vp := get_viewport_rect().size
-	var left_w := vp.x * (1.0 - window.panel_width)
-	var shift := (vp.x / 2.0 - left_w / 2.0) / closeup_zoom
-	return goblin.position + closeup_focus + Vector2(shift, 0)
+	var goblin_x := vp.x * (1.0 - window.panel_width) / 2.0 if with_panel else vp.x * no_panel_goblin_x
+	var shift := (vp.x / 2.0 - goblin_x) / closeup_zoom
+	if with_panel:
+		return goblin.position + closeup_focus + Vector2(shift, 0)
+	# no panel: goblin's visible sprite centred vertically
+	return goblin.position + Vector2(0, goblin.visual_rect().get_center().y) + Vector2(shift, 0)
+
+
+## Where the goblin stands for a step (world position).
+func _goblin_spot(area: WorkArea, config: StepConfig) -> Vector2:
+	var marker: Node2D = null
+	if config and not config.goblin_spot.is_empty():
+		marker = area.get_node_or_null(config.goblin_spot) as Node2D
+	if marker == null:
+		marker = area.get_node_or_null(^"GoblinSpot") as Node2D
+	var world: Vector2
+	if marker:
+		world = marker.global_position
+	else:
+		var r := area.global_rect()
+		world = Vector2(r.position.x - default_spot_gap, r.get_center().y)
+	# goblin's feet go on the spot
+	return to_local(world) - goblin.feet_offset()
+
+
+## Before each step: walk the goblin to its spot, frame the camera, and tell
+## the step where the goblin's box and feet are on screen.
+func _prepare_step(area: WorkArea, config: StepConfig, step: FixStep) -> Dictionary:
+	await goblin.walk_to_point(_goblin_spot(area, config).round())
+	_closeup = true
+	_closeup_panel = step.uses_panel
+	await _move_camera(closeup_zoom, _closeup_position(step.uses_panel))
+	await get_tree().process_frame
+	var xf := get_viewport().get_canvas_transform()
+	var vr := goblin.visual_rect()
+	var tl := xf * goblin.to_global(vr.position)
+	return {
+		source = xf * goblin.to_global(goblin.carry_box_offset),
+		feet = xf * goblin.to_global(goblin.feet_offset()),
+		rect = Rect2(tl, xf * goblin.to_global(vr.end) - tl),
+	}
 
 
 func _move_camera(zoom: float, pos: Vector2) -> void:
@@ -89,11 +136,9 @@ func _fix(area: WorkArea) -> void:
 	_busy = true
 	Sfx.play(&"tap")
 	building.clear_highlights()
-	# zoom in on the goblin, run the steps in the pop-up, zoom back out
-	_closeup = true
-	await _move_camera(closeup_zoom, _closeup_position())
-	var source := get_viewport().get_canvas_transform() * goblin.to_global(goblin.carry_box_offset)
-	await window.run(area, ui_art_scale, source)
+	# per step: walk to the spot + close-up (see _prepare_step), run the
+	# steps, then zoom back out
+	await window.run(area, ui_art_scale)
 	goblin.idle()
 	_closeup = false
 	await _move_camera(pixel_zoom, Vector2.ZERO)
