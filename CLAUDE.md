@@ -50,19 +50,31 @@ out inside `panel_rect`.
 - `shed.tscn` (Building): `Structure` TileMapLayer = broken building;
   `Areas/<WorkArea>` each with `Fixed` TileMapLayer = repaired tiles drawn over
   it once done. Painted Fixed cells = the area (any contiguous shape).
-  WorkArea exports: `steps` (scene chain), `board_count`, `nails_per_board`,
-  `requires` (unlock order), marching-ants settings.
+  WorkArea exports: `steps` (`Array[StepConfig]`, play order), `board_count`
+  (shared by every board step), `requires` (unlock order), marching-ants
+  settings.
+- Step configs (`scripts/goblin_fixit/steps/configs/`): one Resource subclass
+  per step type, knows its scene (`scene()`) and holds that step's options.
+  `SawStepConfig`, `PlaceStepConfig`, `NailStepConfig` (`nails_per_board`),
+  `SandStepConfig` / `PaintStepConfig` (extend `RubStepConfig`: `surface`
+  BOARDS or PANEL, `panel_texture`, `brush_radius`, `complete_at`, `passes`;
+  paint adds `color`). The window sets `step.config` before `begin()`.
 - Highlight: marching ants traced around the cells, clockwise; each ant
   followed by an equal gap, ants alternate yellow/black.
 - Taps: area's cells grown by `tap_padding` (8 art px); overlap goes to the
   nearest area; locked areas still block.
-- First building `shed.tscn`: 5x5, all 3 areas open from the start, each
-  saw -> place -> nail. Layout (X = structure):
+- First building `shed.tscn`: 5x5, all 3 areas open from the start. Example
+  chains: area 1 saw -> place -> nail -> sand -> paint (boards), area 2
+  sand -> paint (PANEL), area 3 saw -> place -> nail. Layout (X = structure):
   `X111X / X111X / XXXXX / XX33X / X2XXX`
 - Placeholders: hatched flat-colour squares/rects for everything (tileset:
   grey structure, brown todo, green fixed, blue spare; tool art same sizes as
   before: board 160x24, saw 64x40, hammer 64x24, nail 8x24, box 64x48).
-- Steps (`scripts/goblin_fixit/steps/`): `FixStep` base; `saw_step` (rhythm
+- Steps (`scripts/goblin_fixit/steps/`): `FixStep` base; `RubStep` base for
+  rub-to-cover steps (`sand_step`, `paint_step`): `RubSurface` sprites keep a
+  coverage mask (1 px per texture px, CPU-stamped soft brush) and the
+  `rub_surface` shader blends before -> after by it; progress = covered pixels,
+  rest auto-fills at `complete_at`; `saw_step` (rhythm
   sawing: board needs `board_cut` 100; slow drag moves the saw 1:1, grinds
   `grind_per_px` and loops `saw_grind`; a quick swipe (`trigger_px` within
   `trigger_window`) runs an auto stroke over `stroke_time` 0.3s with one-shot

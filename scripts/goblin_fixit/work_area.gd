@@ -10,11 +10,13 @@ extends Node2D
 signal completed
 
 @export var display_name := "Wall"
-## Interaction scenes played in order inside the pop-up window.
-@export var steps: Array[PackedScene] = []
-## How many boards this area needs (saw / place / nail all use this).
+## Steps played in order inside the pop-up window. Pick a config type per
+## step (SawStepConfig, PlaceStepConfig, NailStepConfig, SandStepConfig,
+## PaintStepConfig) and set its own options.
+@export var steps: Array[StepConfig] = []
+## How many boards this area needs. Shared by every board step in the chain
+## (saw / place / nail, and sand / paint on BOARDS) so they always agree.
 @export_range(1, 4) var board_count := 3
-@export_range(1, 3) var nails_per_board := 2
 ## Other WorkAreas that must be finished before this one lights up.
 @export var requires: Array[NodePath] = []
 

@@ -3,9 +3,39 @@
 [ext_resource type="Script" uid="uid://bl5eclx36ese3" path="res://scripts/goblin_fixit/building.gd" id="1_g58xh"]
 [ext_resource type="TileSet" uid="uid://bx0wnd00usgwe" path="res://assets/tiles/sunnyside_world_tiles.tres" id="2_eic36"]
 [ext_resource type="Script" uid="uid://pe3b8h3r0m26" path="res://scripts/goblin_fixit/work_area.gd" id="3_eic36"]
-[ext_resource type="PackedScene" uid="uid://c78kx04te4qd7" path="res://scenes/goblin_fixit/steps/saw_step.tscn" id="4_r5d3q"]
-[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/place_step.tscn" id="5_qpc81"]
-[ext_resource type="PackedScene" path="res://scenes/goblin_fixit/steps/nail_step.tscn" id="6_kjino"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/saw_step_config.gd" id="cfg_saw"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/place_step_config.gd" id="cfg_place"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/nail_step_config.gd" id="cfg_nail"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/sand_step_config.gd" id="cfg_sand"]
+[ext_resource type="Script" path="res://scripts/goblin_fixit/steps/configs/paint_step_config.gd" id="cfg_paint"]
+
+[sub_resource type="Resource" id="saw"]
+script = ExtResource("cfg_saw")
+
+[sub_resource type="Resource" id="place"]
+script = ExtResource("cfg_place")
+
+[sub_resource type="Resource" id="nail"]
+script = ExtResource("cfg_nail")
+nails_per_board = 2
+
+[sub_resource type="Resource" id="sand_boards"]
+script = ExtResource("cfg_sand")
+surface = 0
+
+[sub_resource type="Resource" id="paint_boards"]
+script = ExtResource("cfg_paint")
+surface = 0
+color = Color(0.35, 0.6, 0.9, 1)
+
+[sub_resource type="Resource" id="sand_panel"]
+script = ExtResource("cfg_sand")
+surface = 1
+
+[sub_resource type="Resource" id="paint_panel"]
+script = ExtResource("cfg_paint")
+surface = 1
+color = Color(0.85, 0.3, 0.3, 1)
 
 [node name="Shed" type="Node2D" unique_id=443075089]
 script = ExtResource("1_g58xh")
@@ -20,7 +50,7 @@ navigation_enabled = false
 [node name="WorkArea1" type="Node2D" parent="Areas" unique_id=1690207309]
 script = ExtResource("3_eic36")
 display_name = "Work area 1"
-steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+steps = Array[StepConfig]([SubResource("saw"), SubResource("place"), SubResource("nail"), SubResource("sand_boards"), SubResource("paint_boards")])
 
 [node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea1" unique_id=656456650]
 tile_map_data = PackedByteArray("AAABAAEAAAAQACQAAAACAAEAAAAQACQAAAADAAEAAAAQACQAAAABAAAAAAAQACEAAAACAAAAAAAQACEAAAADAAAAAAAQACEAAAA=")
@@ -29,7 +59,7 @@ tile_set = ExtResource("2_eic36")
 [node name="WorkArea2" type="Node2D" parent="Areas" unique_id=1847080994]
 script = ExtResource("3_eic36")
 display_name = "Work area 2"
-steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+steps = Array[StepConfig]([SubResource("sand_panel"), SubResource("paint_panel")])
 
 [node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea2" unique_id=807396714]
 tile_map_data = PackedByteArray("AAABAAQAAAAkABoAAAA=")
@@ -42,7 +72,7 @@ tile_set = ExtResource("2_eic36")
 [node name="WorkArea3" type="Node2D" parent="Areas" unique_id=1827484696]
 script = ExtResource("3_eic36")
 display_name = "Work area 3"
-steps = Array[PackedScene]([ExtResource("4_r5d3q"), ExtResource("5_qpc81"), ExtResource("6_kjino")])
+steps = Array[StepConfig]([SubResource("saw"), SubResource("place"), SubResource("nail")])
 
 [node name="Fixed" type="TileMapLayer" parent="Areas/WorkArea3" unique_id=742104027]
 tile_map_data = PackedByteArray("AAACAAMAAAAQACUAAAADAAMAAAAQACUAAAA=")
